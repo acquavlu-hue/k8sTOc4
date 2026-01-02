@@ -1,0 +1,9 @@
+<configuration>
+
+    <!-- Imposta Fabric8 a INFO -->
+    <logger name="io.fabric8.kubernetes.client" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
