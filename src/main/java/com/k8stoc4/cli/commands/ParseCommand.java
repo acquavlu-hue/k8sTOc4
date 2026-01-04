@@ -48,7 +48,7 @@ public class ParseCommand implements Runnable {
             for (HasMetadata r : resources) {
                 VisitorUtils.accept(r, visitor);
             }
-            visitor.addServiceRelationships();
+            visitor.addAllRelationships();
             C4DslRenderer renderer=new C4DslRenderer();
 
             if (output.isPresent()) {

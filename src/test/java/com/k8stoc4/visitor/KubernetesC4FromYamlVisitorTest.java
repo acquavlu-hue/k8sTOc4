@@ -26,7 +26,7 @@ class KubernetesC4FromYamlVisitorTest {
                 VisitorUtils.accept(r, visitor);
             }
 
-            visitor.addServiceRelationships();
+            visitor.addAllRelationships();
 
             C4Model model = visitor.getModel();
 
@@ -36,6 +36,9 @@ class KubernetesC4FromYamlVisitorTest {
             verifyDeploymentToServiceRelationships(model);
             verifyIngressToServiceRelationships(model);
             verifyPodConfigRelationships(model);
+            verifyHPARelationships(model);
+            verifyPDBRelationships(model);
+            verifyServiceAccountRelationships(model);
         }
     }
 
@@ -122,24 +125,59 @@ class KubernetesC4FromYamlVisitorTest {
         assertNotNull(pvc, "Postgres PVC should exist");
         assertEquals("postgres-pvc", pvc.getName());
         assertEquals("PersistentVolumeClaim", pvc.getKind());
+
+        C4Component hpa = components.get("horizontalpodautoscaler_backend-hpa");
+        assertNotNull(hpa, "Backend HPA should exist");
+        assertEquals("backend-hpa", hpa.getName());
+        assertEquals("HorizontalPodAutoscaler", hpa.getKind());
+
+        C4Component pdb = components.get("poddisruptionbudget_backend-pdb");
+        assertNotNull(pdb, "Backend PDB should exist");
+        assertEquals("backend-pdb", pdb.getName());
+        assertEquals("PodDisruptionBudget", pdb.getKind());
+
+        C4Component serviceAccount = components.get("serviceaccount_demo-app-sa");
+        assertNotNull(serviceAccount, "Service account should exist");
+        assertEquals("demo-app-sa", serviceAccount.getName());
+        assertEquals("ServiceAccount", serviceAccount.getKind());
+
+        C4Component role = components.get("role_demo-app-role");
+        assertNotNull(role, "Role should exist");
+        assertEquals("demo-app-role", role.getName());
+        assertEquals("Role", role.getKind());
+
+        C4Component roleBinding = components.get("rolebinding_demo-app-rb");
+        assertNotNull(roleBinding, "Role binding should exist");
+        assertEquals("demo-app-rb", roleBinding.getName());
+        assertEquals("RoleBinding", roleBinding.getKind());
+
+        C4Component pv = components.get("persistentvolume_demo-pv");
+        assertNotNull(pv, "PV should exist");
+        assertEquals("demo-pv", pv.getName());
+        assertEquals("PersistentVolume", pv.getKind());
+
+        C4Component daemonSet = components.get("daemonset_node-logger");
+        assertNotNull(daemonSet, "DaemonSet should exist");
+        assertEquals("node-logger", daemonSet.getName());
+        assertEquals("DaemonSet", daemonSet.getKind());
     }
 
     private void verifySpecifications(C4Model model) {
         assertTrue(model.getSpecifications().contains("namespace"), "Should contain namespace");
         assertTrue(model.getSpecifications().contains("statefulset"), "Should contain statefulset");
         assertTrue(model.getSpecifications().contains("deployment"), "Should contain deployment");
+        assertTrue(model.getSpecifications().contains("daemonset"), "Should contain daemonset");
         assertTrue(model.getSpecifications().contains("service"), "Should contain service");
         assertTrue(model.getSpecifications().contains("ingress"), "Should contain ingress");
         assertTrue(model.getSpecifications().contains("configmap"), "Should contain configmap");
         assertTrue(model.getSpecifications().contains("secret"), "Should contain secret");
         assertTrue(model.getSpecifications().contains("persistentvolumeclaim"), "Should contain persistentvolumeclaim");
+        assertTrue(model.getSpecifications().contains("persistentvolume"), "Should contain persistentvolume");
         assertTrue(model.getSpecifications().contains("serviceaccount"), "Should contain serviceaccount");
         assertTrue(model.getSpecifications().contains("role"), "Should contain role");
         assertTrue(model.getSpecifications().contains("rolebinding"), "Should contain rolebinding");
-        assertTrue(model.getSpecifications().contains("persistentvolume"), "Should contain persistentvolume");
         assertTrue(model.getSpecifications().contains("horizontalpodautoscaler"), "Should contain horizontalpodautoscaler");
         assertTrue(model.getSpecifications().contains("poddisruptionbudget"), "Should contain poddisruptionbudget");
-        assertTrue(model.getSpecifications().contains("daemonset"), "Should contain daemonset");
     }
 
     private void verifyDeploymentToServiceRelationships(C4Model model) {
@@ -227,5 +265,48 @@ class KubernetesC4FromYamlVisitorTest {
                     && r.getTarget().equals("demo-app.secret_db-credentials")
                     && r.getTechnology().equals(Constants.SECRET_TECHNOLOGY)),
                 "Postgres statefulset should mount db-credentials secret (env)");
+    }
+
+    private void verifyHPARelationships(C4Model model) {
+        C4Namespace namespace = model.getNamespaces().get("demo-app");
+        assertNotNull(namespace, "Namespace should exist");
+
+        assertTrue(namespace.getRelationships().stream()
+                .anyMatch(r -> r.getSource().equals("demo-app.horizontalpodautoscaler_backend-hpa") 
+                    && r.getTarget().equals("demo-app.deployment_backend")
+                    && r.getDescription().equals(Constants.SCALES_RELATIONSHIP)
+                    && r.getTechnology().equals(Constants.TECHNOLOGY_HPA)),
+                "HPA should scale backend deployment");
+    }
+
+    private void verifyPDBRelationships(C4Model model) {
+        C4Namespace namespace = model.getNamespaces().get("demo-app");
+        assertNotNull(namespace, "Namespace should exist");
+
+        assertTrue(namespace.getRelationships().stream()
+                .anyMatch(r -> r.getSource().equals("demo-app.poddisruptionbudget_backend-pdb") 
+                    && r.getTarget().equals("demo-app.deployment_backend")
+                    && r.getDescription().equals(Constants.PROTECTS_RELATIONSHIP)
+                    && r.getTechnology().equals(Constants.TECHNOLOGY_PDB)),
+                "PDB should protect backend deployment");
+    }
+
+    private void verifyServiceAccountRelationships(C4Model model) {
+        C4Namespace namespace = model.getNamespaces().get("demo-app");
+        assertNotNull(namespace, "Namespace should exist");
+
+        assertTrue(namespace.getRelationships().stream()
+                .anyMatch(r -> r.getSource().equals("demo-app.statefulset_postgres") 
+                    && r.getTarget().equals("demo-app.serviceaccount_demo-app-sa")
+                    && r.getDescription().equals(Constants.USES_RELATIONSHIP)
+                    && r.getTechnology().equals(Constants.TECHNOLOGY_SERVICEACCOUNT)),
+                "Postgres statefulset should use demo-app-sa service account");
+
+        assertTrue(namespace.getRelationships().stream()
+                .anyMatch(r -> r.getSource().equals("demo-app.deployment_backend") 
+                    && r.getTarget().equals("demo-app.serviceaccount_demo-app-sa")
+                    && r.getDescription().equals(Constants.USES_RELATIONSHIP)
+                    && r.getTechnology().equals(Constants.TECHNOLOGY_SERVICEACCOUNT)),
+                "Backend deployment should use demo-app-sa service account");
     }
 }
