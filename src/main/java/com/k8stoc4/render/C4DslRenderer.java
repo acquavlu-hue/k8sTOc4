@@ -18,9 +18,17 @@ public class C4DslRenderer {
     public String renderModel(C4Model model) {
         StringBuilder sb = new StringBuilder();
         sb.append("model").append("{\n");
+        
+        // Prima: renderizza componenti globali (non namespaced)
+        for (C4Component component : model.getGlobalComponents()) {
+            sb.append(renderGlobalComponent(component));
+        }
+        
+        // Poi: renderizza namespace
         for (C4Namespace namespace : model.getNamespaces().values()) {
             sb.append(renderNamespace(namespace));
         }
+        
         sb.append("}\n");
         return sb.toString();
     }
@@ -104,6 +112,42 @@ public class C4DslRenderer {
         StringWriter writer = new StringWriter();
         mustache.execute(writer, ctx);
         return writer.toString();
+    }
+
+    private String renderGlobalComponent(C4Component c) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("kind", c.getKind().toLowerCase());
+        model.put("id", c.getId());
+        model.put("name", c.getName());
+        model.put("technology", c.getKind());
+        model.put("description", c.getDescription());
+        model.put("labels", Optional.ofNullable(c.getLabels()).orElse(Map.of()).entrySet().stream()
+                .map(e -> Map.of("key", e.getKey(), "value", e.getValue()))
+                .toList());
+        model.put("annotations", Optional.ofNullable(c.getAnnotations()).orElse(Map.of()).entrySet().stream()
+                .map(e -> Map.of("key", e.getKey(), "value", e.getValue()))
+                .toList());
+
+        return String.format("    %s %s '%s' {\n  technology \"%s\"\n  description \"%s\"\n  metadata {\n    labels '\n%s\n    '\n    annotations '\n%s\n    '\n  }\n}\n",
+            model.get("kind"),
+            model.get("id"),
+            model.get("name"),
+            model.get("technology"),
+            model.get("description"),
+            renderLabels((List<Map<String, String>>) model.get("labels")),
+            renderAnnotations((List<Map<String, String>>) model.get("annotations")));
+    }
+
+    private String renderLabels(List<Map<String, String>> labels) {
+        return labels.stream()
+            .map(l -> String.format("            %s: %s", l.get("key"), l.get("value")))
+            .collect(java.util.stream.Collectors.joining("\n"));
+    }
+
+    private String renderAnnotations(List<Map<String, String>> annotations) {
+        return annotations.stream()
+            .map(a -> String.format("            %s: %s", a.get("key"), a.get("value")))
+            .collect(java.util.stream.Collectors.joining("\n"));
     }
 
     public String renderRelations(C4Model model) {

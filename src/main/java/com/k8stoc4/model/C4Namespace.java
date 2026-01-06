@@ -31,7 +31,7 @@ public class C4Namespace {
     public C4LabelGroup getOrCreateLabelGroup(String labelKey, String labelValue) {
         String key = labelKey + ":" + labelValue;
         C4LabelGroup group = labelGroupIndex.computeIfAbsent(key, 
-            k -> new C4LabelGroup(labelKey + ":" + labelValue, labelKey, labelValue));
+            k -> new C4LabelGroup(labelKey + "_" + labelValue, labelKey, labelValue));
         labelGroups.add(group);
         return group;
     }

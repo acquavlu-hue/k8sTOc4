@@ -12,31 +12,20 @@ namespace default {
     '
   }
 }
+    persistentvolume persistentvolume_demo-pv 'demo-pv' {
+  technology "PersistentVolume"
+  description ""
+  metadata {
+    labels '
+    '
+    annotations '
+    '
+  }
+}
 
 }
 namespace demo-app {
-
-    deployment deployment_auth 'auth' {
-  technology "Deployment"
-  description ""
-  metadata {
-    labels '
-            app: auth
-    '
-    annotations '
-    '
-  }
-}
-    poddisruptionbudget poddisruptionbudget_backend-pdb 'backend-pdb' {
-  technology "PodDisruptionBudget"
-  description ""
-  metadata {
-    labels '
-    '
-    annotations '
-    '
-  }
-}
+    labelgroup app_node-logger {
     daemonset daemonset_node-logger 'node-logger' {
   technology "DaemonSet"
   description ""
@@ -48,53 +37,77 @@ namespace demo-app {
     '
   }
 }
-    service service_redis 'redis' {
+}
+
+    labelgroup app_postgres {
+    statefulset statefulset_postgres 'postgres' {
+  technology "StatefulSet"
+  description ""
+  metadata {
+    labels '
+            app: postgres
+    '
+    annotations '
+    '
+  }
+}
+    service service_postgres 'postgres' {
   technology "Service"
   description ""
   metadata {
     labels '
+            app: postgres
     '
     annotations '
     '
   }
 }
-    deployment deployment_message-broker 'message-broker' {
+}
+
+    labelgroup app_frontend {
+    deployment deployment_frontend 'frontend' {
   technology "Deployment"
   description ""
   metadata {
     labels '
-            app: rabbitmq
+            app: frontend
     '
     annotations '
     '
   }
 }
-    deployment deployment_redis 'redis' {
-  technology "Deployment"
+    service service_frontend 'frontend' {
+  technology "Service"
   description ""
   metadata {
     labels '
-            app: redis
+            app: frontend
     '
     annotations '
     '
   }
 }
-    persistentvolume persistentvolume_demo-pv 'demo-pv' {
-  technology "PersistentVolume"
+    ingress ingress_demo-ingress 'demo-ingress' {
+  technology "Ingress"
   description ""
   metadata {
     labels '
+            app: frontend
     '
     annotations '
+            nginx.ingress.kubernetes.io/rewrite-target: /
     '
   }
 }
-    role role_demo-app-role 'demo-app-role' {
-  technology "Role"
+}
+
+    labelgroup app_backend {
+    poddisruptionbudget poddisruptionbudget_backend-pdb 'backend-pdb' {
+  technology "PodDisruptionBudget"
   description ""
   metadata {
     labels '
+            app: backend
     '
     annotations '
     '
@@ -111,25 +124,112 @@ namespace demo-app {
     '
   }
 }
-    deployment deployment_frontend 'frontend' {
-  technology "Deployment"
+    service service_backend 'backend' {
+  technology "Service"
   description ""
   metadata {
     labels '
-            app: frontend
+            app: backend
     '
     annotations '
     '
   }
 }
-    ingress ingress_demo-ingress 'demo-ingress' {
-  technology "Ingress"
+    horizontalpodautoscaler horizontalpodautoscaler_backend-hpa 'backend-hpa' {
+  technology "HorizontalPodAutoscaler"
+  description ""
+  metadata {
+    labels '
+            app: backend
+    '
+    annotations '
+    '
+  }
+}
+}
+
+    labelgroup app_rabbitmq {
+    service service_message-broker 'message-broker' {
+  technology "Service"
+  description ""
+  metadata {
+    labels '
+            app: rabbitmq
+    '
+    annotations '
+    '
+  }
+}
+    deployment deployment_message-broker 'message-broker' {
+  technology "Deployment"
+  description ""
+  metadata {
+    labels '
+            app: rabbitmq
+    '
+    annotations '
+    '
+  }
+}
+}
+
+    labelgroup app_auth {
+    deployment deployment_auth 'auth' {
+  technology "Deployment"
+  description ""
+  metadata {
+    labels '
+            app: auth
+    '
+    annotations '
+    '
+  }
+}
+    service service_auth 'auth' {
+  technology "Service"
+  description ""
+  metadata {
+    labels '
+            app: auth
+    '
+    annotations '
+    '
+  }
+}
+}
+
+    labelgroup app_redis {
+    deployment deployment_redis 'redis' {
+  technology "Deployment"
+  description ""
+  metadata {
+    labels '
+            app: redis
+    '
+    annotations '
+    '
+  }
+}
+}
+
+
+    service service_redis 'redis' {
+  technology "Service"
   description ""
   metadata {
     labels '
     '
     annotations '
-            nginx.ingress.kubernetes.io/rewrite-target: /
+    '
+  }
+}
+    role role_demo-app-role 'demo-app-role' {
+  technology "Role"
+  description ""
+  metadata {
+    labels '
+    '
+    annotations '
     '
   }
 }
@@ -163,83 +263,11 @@ namespace demo-app {
     '
   }
 }
-    statefulset statefulset_postgres 'postgres' {
-  technology "StatefulSet"
-  description ""
-  metadata {
-    labels '
-            app: postgres
-    '
-    annotations '
-    '
-  }
-}
-    service service_auth 'auth' {
-  technology "Service"
-  description ""
-  metadata {
-    labels '
-    '
-    annotations '
-    '
-  }
-}
     rolebinding rolebinding_demo-app-rb 'demo-app-rb' {
   technology "RoleBinding"
   description ""
   metadata {
     labels '
-    '
-    annotations '
-    '
-  }
-}
-    horizontalpodautoscaler horizontalpodautoscaler_backend-hpa 'backend-hpa' {
-  technology "HorizontalPodAutoscaler"
-  description ""
-  metadata {
-    labels '
-    '
-    annotations '
-    '
-  }
-}
-    service service_message-broker 'message-broker' {
-  technology "Service"
-  description ""
-  metadata {
-    labels '
-    '
-    annotations '
-    '
-  }
-}
-    service service_frontend 'frontend' {
-  technology "Service"
-  description ""
-  metadata {
-    labels '
-    '
-    annotations '
-    '
-  }
-}
-    service service_backend 'backend' {
-  technology "Service"
-  description ""
-  metadata {
-    labels '
-    '
-    annotations '
-    '
-  }
-}
-    service service_postgres 'postgres' {
-  technology "Service"
-  description ""
-  metadata {
-    labels '
-            app: postgres
     '
     annotations '
     '

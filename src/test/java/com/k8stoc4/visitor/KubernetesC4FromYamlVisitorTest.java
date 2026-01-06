@@ -57,7 +57,7 @@ class KubernetesC4FromYamlVisitorTest {
         Map<String, C4Component> components = namespace.getComponents().stream()
                 .collect(java.util.stream.Collectors.toMap(C4Component::getId, c -> c));
 
-        assertEquals(23, components.size(), "Should have 23 components");
+        assertEquals(22, components.size(), "Should have 22 components");
 
         C4Component postgresDeployment = components.get("statefulset_postgres");
         assertNotNull(postgresDeployment, "Postgres statefulset should exist");
@@ -151,10 +151,14 @@ class KubernetesC4FromYamlVisitorTest {
         assertEquals("demo-app-rb", roleBinding.getName());
         assertEquals("RoleBinding", roleBinding.getKind());
 
-        C4Component pv = components.get("persistentvolume_demo-pv");
+        C4Component pv = model.getGlobalComponents().stream()
+                .filter(c -> c.getId().equals("persistentvolume_demo-pv"))
+                .findFirst()
+                .orElse(null);
         assertNotNull(pv, "PV should exist");
         assertEquals("demo-pv", pv.getName());
         assertEquals("PersistentVolume", pv.getKind());
+        assertEquals(null, pv.getNamespace());
 
         C4Component daemonSet = components.get("daemonset_node-logger");
         assertNotNull(daemonSet, "DaemonSet should exist");

@@ -14,4 +14,5 @@ element  namespace
 element  horizontalpodautoscaler
 element  rolebinding
 element  deployment
+element  labelgroup
 }

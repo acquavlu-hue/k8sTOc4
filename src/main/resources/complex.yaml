@@ -65,7 +65,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: demo-pv
-  namespace: demo-app
 spec:
   capacity:
     storage: 5Gi
@@ -233,6 +232,8 @@ kind: Service
 metadata:
   name: message-broker
   namespace: demo-app
+  labels:
+    app: rabbitmq
 spec:
   ports:
     - name: amqp
@@ -300,6 +301,8 @@ kind: Service
 metadata:
   name: backend
   namespace: demo-app
+  labels:
+    app: backend
 spec:
   ports:
     - port: 80
@@ -344,6 +347,8 @@ kind: Service
 metadata:
   name: auth
   namespace: demo-app
+  labels:
+    app: auth
 spec:
   ports:
     - port: 9090
@@ -388,6 +393,8 @@ kind: Service
 metadata:
   name: frontend
   namespace: demo-app
+  labels:
+    app: frontend
 spec:
   type: ClusterIP
   ports:
@@ -403,6 +410,8 @@ metadata:
   namespace: demo-app
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
+  labels:
+    app: frontend
 spec:
   ingressClassName: nginx
   rules:
@@ -436,6 +445,8 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: backend-hpa
   namespace: demo-app
+  labels:
+    app: backend
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -456,6 +467,8 @@ kind: PodDisruptionBudget
 metadata:
   name: backend-pdb
   namespace: demo-app
+  labels:
+    app: backend
 spec:
   minAvailable: 2
   selector:

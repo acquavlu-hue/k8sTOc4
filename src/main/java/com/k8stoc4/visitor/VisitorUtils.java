@@ -26,14 +26,22 @@ public class VisitorUtils {
 
     public static boolean containerMatchesSelector(C4Component component, Map<String, String> selector) {
         if (selector == null || selector.isEmpty()) return false;
-        if (component.getLabels() == null || component.getLabels().isEmpty()) return false;
+
+        Map<String, String> podLabels=null;
+        if(component.getResource() instanceof Deployment){
+            podLabels = ((Deployment)component.getResource()).getSpec().getTemplate().getMetadata().getLabels();
+        }else if (component.getResource() instanceof StatefulSet){
+            podLabels = ((StatefulSet)component.getResource()).getSpec().getTemplate().getMetadata().getLabels();
+        }
+
+        if (podLabels == null || podLabels.isEmpty()) return false;
 
         for (Map.Entry<String, String> entry : selector.entrySet()) {
             String key = entry.getKey();
-            String value = entry.getValue();
-            String componentValue = component.getLabels().get(key);
+            String selectorLabelValue = entry.getValue();
+            String podLabelValue = podLabels.get(key);
 
-            if (!value.equals(componentValue)) {
+            if (!selectorLabelValue.equals(podLabelValue)) {
                 return false;
             }
         }
