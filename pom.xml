@@ -138,6 +138,30 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.skife.maven</groupId>
+                <artifactId>really-executable-jar-maven-plugin</artifactId>
+                <version>2.1.1</version>
+                <configuration>
+                    <!-- (optional) input file name: only this specific file will be made executable -->
+                    <inputFile>target/${project.artifactId}-${version}.jar</inputFile>
+                    <!-- (optional) classifier name: only artifacts with this classifier are made executable -->
+                    <classifier>shaded</classifier>
+                    <!-- (optional) support other packaging formats than jar -->
+                    <allowOtherTypes>true</allowOtherTypes>
+                    <!-- (optional) name for a new binary executable, if not set will just
+                         make the original artifact executable -->
+                    <programFile>k8sToC4</programFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>really-executable-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
         </plugins>
     </build>
