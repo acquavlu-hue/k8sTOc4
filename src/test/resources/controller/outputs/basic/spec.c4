@@ -1,0 +1,7 @@
+specification {
+    element ingress
+    element service
+    element configmap
+    element namespace
+    element deployment
+}
