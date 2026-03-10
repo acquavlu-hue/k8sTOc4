@@ -51,10 +51,10 @@ public class ParseCommand implements Runnable {
             try {
                 Paths.get(output.get()).toFile().mkdirs();
                 Files.writeString(Paths.get(output.get(), "spec.c4"),
-                        renderOutput.getModel(), StandardOpenOption.CREATE,
+                        renderOutput.getSpec(), StandardOpenOption.CREATE,
                         StandardOpenOption.TRUNCATE_EXISTING);
                 Files.writeString(Paths.get(output.get(), "model.c4"),
-                        renderOutput.getSpec(), StandardOpenOption.CREATE,
+                        renderOutput.getModel(), StandardOpenOption.CREATE,
                         StandardOpenOption.TRUNCATE_EXISTING);
             } catch (IOException e) {
                 throw new RuntimeException("Failed to write output files", e);
