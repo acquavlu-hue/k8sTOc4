@@ -6,15 +6,14 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Getter
-@Setter
 @ToString
 @EqualsAndHashCode
 public class C4Relationship {
-    public String source;      
-    public String target;      
-    public String description; 
-    public String technology;
-    public String tag="";
+    private final String source;
+    private final String target;
+    private final String description;
+    private final String technology;
+    private final String tag;
 
     public C4Relationship(String source,
                           String target,
@@ -24,6 +23,7 @@ public class C4Relationship {
         this.target = target;
         this.description = description;
         this.technology = technology;
+        this.tag = "";
     }
 
     public C4Relationship(String source,

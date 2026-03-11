@@ -23,7 +23,10 @@ model {
     }
     // Cross-scope relationships
     // Total model relationships: 1
-    persistentvolume_demo-pv -> demo-app.persistentvolumeclaim_postgres-pvc
+    persistentvolume_demo-pv -> demo-app.persistentvolumeclaim_postgres-pvc {
+        description 'bounds'
+        technology 'pv'
+    }
     namespace demo-app {
         serviceaccount serviceaccount_demo-app-sa 'demo-app-sa' {
             technology "ServiceAccount"
@@ -261,23 +264,77 @@ model {
                 '
             }
         }
-        demo-app.statefulset_postgres -> demo-app.secret_db-credentials
-        demo-app.deployment_backend -> demo-app.secret_db-credentials
-        demo-app.deployment_frontend -> demo-app.configmap_frontend-config
-        demo-app.ingress_demo-ingress -> demo-app.service_frontend
-        demo-app.ingress_demo-ingress -> demo-app.service_backend
-        demo-app.ingress_demo-ingress -> demo-app.service_auth
-        demo-app.service_postgres -> demo-app.statefulset_postgres
-        demo-app.service_redis -> demo-app.deployment_redis
-        demo-app.service_message-broker -> demo-app.deployment_message-broker
-        demo-app.service_backend -> demo-app.deployment_backend
-        demo-app.service_auth -> demo-app.deployment_auth
-        demo-app.service_frontend -> demo-app.deployment_frontend
-        demo-app.horizontalpodautoscaler_backend-hpa -> demo-app.deployment_backend
-        demo-app.poddisruptionbudget_backend-pdb -> demo-app.deployment_backend
-        demo-app.statefulset_postgres -> demo-app.serviceaccount_demo-app-sa
-        demo-app.deployment_backend -> demo-app.serviceaccount_demo-app-sa
-        demo-app.rolebinding_demo-app-rb -> demo-app.role_demo-app-role
-        demo-app.serviceaccount_demo-app-sa -> demo-app.rolebinding_demo-app-rb
+        demo-app.statefulset_postgres -> demo-app.secret_db-credentials {
+            description 'mount'
+            technology 'secret'
+        }
+        demo-app.deployment_backend -> demo-app.secret_db-credentials {
+            description 'mount'
+            technology 'secret'
+        }
+        demo-app.deployment_frontend -> demo-app.configmap_frontend-config {
+            description 'mount'
+            technology 'configmap'
+        }
+        demo-app.ingress_demo-ingress -> demo-app.service_frontend {
+            description 'routes HTTP traffic'
+            technology 'HTTP'
+        }
+        demo-app.ingress_demo-ingress -> demo-app.service_backend {
+            description 'routes HTTP traffic'
+            technology 'HTTP'
+        }
+        demo-app.ingress_demo-ingress -> demo-app.service_auth {
+            description 'routes HTTP traffic'
+            technology 'HTTP'
+        }
+        demo-app.service_postgres -> demo-app.statefulset_postgres {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        demo-app.service_redis -> demo-app.deployment_redis {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        demo-app.service_message-broker -> demo-app.deployment_message-broker {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        demo-app.service_backend -> demo-app.deployment_backend {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        demo-app.service_auth -> demo-app.deployment_auth {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        demo-app.service_frontend -> demo-app.deployment_frontend {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        demo-app.horizontalpodautoscaler_backend-hpa -> demo-app.deployment_backend {
+            description 'scales'
+            technology 'hpa'
+        }
+        demo-app.poddisruptionbudget_backend-pdb -> demo-app.deployment_backend {
+            description 'protects'
+            technology 'pdb'
+        }
+        demo-app.statefulset_postgres -> demo-app.serviceaccount_demo-app-sa {
+            description 'uses'
+            technology 'serviceaccount'
+        }
+        demo-app.deployment_backend -> demo-app.serviceaccount_demo-app-sa {
+            description 'uses'
+            technology 'serviceaccount'
+        }
+        demo-app.rolebinding_demo-app-rb -> demo-app.role_demo-app-role {
+            description 'uses'
+            technology 'rbac'
+        }
+        demo-app.serviceaccount_demo-app-sa -> demo-app.rolebinding_demo-app-rb {
+            description 'uses'
+            technology 'rbac'
+        }
     }
 }

@@ -42,8 +42,17 @@ model {
                 '
             }
         }
-        default.deployment_sample-app -> default.configmap_sample-config
-        default.ingress_sample-app-ingress -> default.service_sample-app-service
-        default.service_sample-app-service -> default.deployment_sample-app
+        default.deployment_sample-app -> default.configmap_sample-config {
+            description 'mount'
+            technology 'configmap'
+        }
+        default.ingress_sample-app-ingress -> default.service_sample-app-service {
+            description 'routes HTTP traffic'
+            technology 'HTTP'
+        }
+        default.service_sample-app-service -> default.deployment_sample-app {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
     }
 }

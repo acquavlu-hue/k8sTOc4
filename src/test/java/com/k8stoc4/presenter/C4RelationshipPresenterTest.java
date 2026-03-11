@@ -16,8 +16,8 @@ public class C4RelationshipPresenterTest {
 
     @Test
     public void testRelationshipWithTag() {
-        final C4Relationship relationship = new C4Relationship("source", "target", "", "", "tag");
-        final String expected = "source -> target tag\n";
+        final C4Relationship relationship = new C4Relationship("source", "target", "", "", "#tag");
+        final String expected = "source -> target {\n    #tag\n}\n";
         assertEquals(expected, C4RelationshipPresenter.present(relationship));
     }
 }
