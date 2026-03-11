@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class C4DslRenderer {
 
     public Output render(final C4Model model) {
-        return new Output(renderModel(model), renderSpec(model));
+        return new Output(renderModel(model), renderSpec(model), renderViews(model));
     }
 
     // Render principale: workspace
@@ -66,18 +66,37 @@ public class C4DslRenderer {
         return sb.toString();
     }
 
+    private String renderViews(C4Model model) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("views {\n");
+        sb.append("    view overall {\n");
+        sb.append("        include *\n");
+        sb.append("    }\n");
+        for (C4Namespace namespace : model.getNamespaces().values()) {
+            sb.append("    view ").append(namespace.getName()).append(" {\n");
+            sb.append("        include ").append(namespace.getName()).append(".**\n");
+            sb.append("    }\n");
+        }
+        sb.append("}\n");
+        return sb.toString();
+    }
+
     public static class Output {
         private final String model;
         private final String spec;
+        private final String view;
 
-        private Output(String model, String spec) {
+        private Output(String model, String spec, String view) {
             this.model = model;
             this.spec = spec;
+            this.view = view;
         }
 
         public String getModel() { return this.model; }
 
         public String getSpec() { return this.spec; }
+
+        public String getView() { return this.view; }
     }
 
 }
