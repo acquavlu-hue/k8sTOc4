@@ -73,8 +73,8 @@ public class C4DslRenderer {
         sb.append("        include *\n");
         sb.append("    }\n");
         for (C4Namespace namespace : model.getNamespaces().values()) {
-            sb.append("    view ").append(namespace.getName()).append(" {\n");
-            sb.append("        include ").append(namespace.getName()).append(".**\n");
+            sb.append("    view of ").append(namespace.getName()).append(" {\n");
+            sb.append("        include *\n");
             sb.append("    }\n");
         }
         sb.append("}\n");
