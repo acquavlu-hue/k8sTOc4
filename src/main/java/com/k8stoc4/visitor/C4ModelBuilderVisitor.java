@@ -96,15 +96,7 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
                 replicaSet.getSpec().getTemplate().getMetadata().getLabels());
 
         namespace.addComponents(component);
-        replicaSet.getMetadata().getOwnerReferences().forEach(ownerReference -> {
-            final C4Relationship rel = new C4Relationship(
-                    namespace.getName() + "." + ownerReference.getKind().toLowerCase() + "_" + ownerReference.getName(),
-                    component.getNamespace() + "." + component.getId(),
-                    Constants.OWNER_RELATIONSHIP,
-                    "k8s"
-            );
-            namespace.addRelationship(rel);
-        });
+        addOwnerRelationship(namespace, component);
     }
 
     @Override
@@ -123,15 +115,7 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
                 pod.getMetadata().getLabels());
 
         namespace.addComponents(component);
-        pod.getMetadata().getOwnerReferences().forEach(ownerReference -> {
-            final C4Relationship rel = new C4Relationship(
-                    namespace.getName() + "." + ownerReference.getKind().toLowerCase() + "_" + ownerReference.getName(),
-                    component.getNamespace() + "." + component.getId(),
-                    Constants.OWNER_RELATIONSHIP,
-                    "k8s"
-            );
-            namespace.addRelationship(rel);
-        });
+        addOwnerRelationship(namespace, component);
     }
 
     @Override
@@ -661,5 +645,27 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
             String target = component.getNamespace() + ".secret_" + valueFrom.getSecretKeyRef().getName();
             namespace.addRelationship(new C4Relationship(source, target, Constants.MOUNT_RELATIONSHIP, Constants.SECRET_TECHNOLOGY));
         }
+    }
+
+    private void addOwnerRelationship(C4Namespace namespace, C4Component component) {
+        component.getResource().getMetadata().getOwnerReferences().forEach(ownerReference -> {
+            if (Constants.isClusterScoped(ownerReference.getKind())) {
+                final C4Relationship rel = new C4Relationship(
+                        ownerReference.getKind().toLowerCase() + "_" + ownerReference.getName(),
+                        component.getNamespace() + "." + component.getId(),
+                        Constants.OWNER_RELATIONSHIP,
+                        "k8s"
+                );
+                model.addRelationship(rel);
+            } else {
+                final C4Relationship rel = new C4Relationship(
+                        namespace.getName() + "." + ownerReference.getKind().toLowerCase() + "_" + ownerReference.getName(),
+                        component.getNamespace() + "." + component.getId(),
+                        Constants.OWNER_RELATIONSHIP,
+                        "k8s"
+                );
+                namespace.addRelationship(rel);
+            }
+        });
     }
 }
