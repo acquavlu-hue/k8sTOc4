@@ -116,6 +116,15 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
 
         namespace.addComponents(component);
         addOwnerRelationship(namespace, component);
+        if (pod.getSpec().getNodeName() != null) {
+            C4Relationship rel = new C4Relationship(
+                    "node_" + pod.getSpec().getNodeName(),
+                    component.getNamespace() + "." + component.getId(),
+                    Constants.OWNER_RELATIONSHIP,
+                    Constants.K8S_TECHNOLOGY
+            );
+            namespace.addRelationship(rel);
+        }
     }
 
     @Override
@@ -654,7 +663,7 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
                         ownerReference.getKind().toLowerCase() + "_" + ownerReference.getName(),
                         component.getNamespace() + "." + component.getId(),
                         Constants.OWNER_RELATIONSHIP,
-                        "k8s"
+                        Constants.K8S_TECHNOLOGY
                 );
                 model.addRelationship(rel);
             } else {
@@ -662,7 +671,7 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
                         namespace.getName() + "." + ownerReference.getKind().toLowerCase() + "_" + ownerReference.getName(),
                         component.getNamespace() + "." + component.getId(),
                         Constants.OWNER_RELATIONSHIP,
-                        "k8s"
+                        Constants.K8S_TECHNOLOGY
                 );
                 namespace.addRelationship(rel);
             }

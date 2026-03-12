@@ -30,4 +30,10 @@ public  class C4Model {
                 .collect(Collectors.toSet());
     }
 
+    public Set<C4Component> getClusterScopedComponentsByKind(String kind){
+        return clusterScopedComponents.stream().parallel()
+                .filter(c4Component -> kind.equalsIgnoreCase(c4Component.getKind()))
+                .collect(Collectors.toSet());
+    }
+
  }

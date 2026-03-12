@@ -67,14 +67,21 @@ public class C4DslRenderer {
     }
 
     private String renderViews(C4Model model) {
+        final Set<C4Component> nodes = model.getClusterScopedComponentsByKind("Node");
         StringBuilder sb = new StringBuilder();
         sb.append("views {\n");
-        sb.append("    view overall {\n");
+        sb.append("    view namespaces {\n");
         sb.append("        include *\n");
+        sb.append("            where kind is namespace\n");
+        sb.append("    }\n");
+        sb.append("    view nodes {\n");
+        sb.append("        include ").append(nodes.stream().map(C4Component::getId).collect(Collectors.joining(", "))).append("\n");
+        sb.append("        include ").append(model.getNamespaces().values().stream().map(namespace -> namespace.getName() + "._").collect(Collectors.joining(", "))).append("\n");
         sb.append("    }\n");
         for (C4Namespace namespace : model.getNamespaces().values()) {
             sb.append("    view of ").append(namespace.getName()).append(" {\n");
             sb.append("        include *\n");
+            sb.append("        exclude ").append(nodes.stream().map(n -> n.getId()).collect(Collectors.joining(", "))).append("\n");
             sb.append("    }\n");
         }
         sb.append("}\n");
