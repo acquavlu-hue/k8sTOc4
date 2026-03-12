@@ -9,20 +9,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class KubeApiServerInputProvider implements ResourceProvider {
+    private final KubernetesClient client;
+
+    public KubeApiServerInputProvider() {
+        this.client = new KubernetesClientBuilder().build();
+    }
+
     @Override
     public List<HasMetadata> resources() {
-        try (KubernetesClient client = new KubernetesClientBuilder().build()) {
-            final List<HasMetadata> allResources = new ArrayList<>();
-            allResources.addAll(client.pods().inAnyNamespace().list().getItems());
-            allResources.addAll(client.services().inAnyNamespace().list().getItems());
-            allResources.addAll(client.apps().deployments().inAnyNamespace().list().getItems());
-            allResources.addAll(client.apps().replicaSets().inAnyNamespace().list().getItems());
-            allResources.addAll(client.apps().statefulSets().inAnyNamespace().list().getItems());
-            allResources.addAll(client.apps().daemonSets().inAnyNamespace().list().getItems());
-            allResources.addAll(client.batch().v1().jobs().inAnyNamespace().list().getItems());
-            allResources.addAll(client.configMaps().inAnyNamespace().list().getItems());
-            allResources.addAll(client.nodes().list().getItems());
-            return allResources;
-        }
+        final List<HasMetadata> allResources = new ArrayList<>();
+        allResources.addAll(client.pods().inAnyNamespace().list().getItems());
+        allResources.addAll(client.services().inAnyNamespace().list().getItems());
+        allResources.addAll(client.apps().deployments().inAnyNamespace().list().getItems());
+        allResources.addAll(client.apps().replicaSets().inAnyNamespace().list().getItems());
+        allResources.addAll(client.apps().statefulSets().inAnyNamespace().list().getItems());
+        allResources.addAll(client.apps().daemonSets().inAnyNamespace().list().getItems());
+        allResources.addAll(client.batch().v1().jobs().inAnyNamespace().list().getItems());
+        allResources.addAll(client.configMaps().inAnyNamespace().list().getItems());
+        allResources.addAll(client.nodes().list().getItems());
+        return allResources;
     }
 }
