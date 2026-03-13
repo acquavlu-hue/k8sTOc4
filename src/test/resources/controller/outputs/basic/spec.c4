@@ -3,7 +3,6 @@ specification {
         style {
             color red
             icon bootstrap:question-square
-            iconColor black
         }
     }
     element namespace

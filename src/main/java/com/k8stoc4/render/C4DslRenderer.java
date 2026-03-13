@@ -54,7 +54,6 @@ public class C4DslRenderer {
         sb.append("        style {\n");
         sb.append("            color red\n");
         sb.append("            icon bootstrap:question-square\n");
-        sb.append("            iconColor black\n");
         sb.append("        }\n");
         sb.append("    }\n");
         for (String elementName: model.getSpecifications()) {
