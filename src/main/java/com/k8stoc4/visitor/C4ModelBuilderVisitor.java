@@ -289,7 +289,13 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
                                             servicesByFqdn.forEach((fqdn, service) -> {
                                                 if (value.contains(fqdn)) {
                                                     namespace.addRelationship(
-                                                            buildRelationship(component, service,Constants.SERVICE2SERVICE_TAG)
+                                                            new C4Relationship(
+                                                                component.getNamespace() + "." + component.getId(),
+                                                                service.getNamespace() + "." + service.getId(),
+                                                                Constants.ROUTES_TO_RELATIONSHIP,
+                                                                Constants.TECHNOLOGY_TCP_HTTP,
+                                                                Constants.SERVICE2SERVICE_TAG
+                                                            )
                                                     );
                                                 }
                                             })
@@ -297,17 +303,6 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
                         });
             });
         });
-    }
-
-
-    private C4Relationship buildRelationship(C4Component source, C4Component target, String tag) {
-        return new C4Relationship(
-                source.getNamespace() + "." + source.getId(),
-                target.getNamespace() + "." + target.getId(),
-                Constants.ROUTES_TO_RELATIONSHIP,
-                Constants.TECHNOLOGY_TCP_HTTP,
-                tag
-        );
     }
 
     private boolean isHttpUrl(String value) {
