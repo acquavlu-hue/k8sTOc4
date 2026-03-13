@@ -23,7 +23,7 @@ public class ParseController {
 
     public C4DslRenderer.Output execute() {
         List<HasMetadata> resources = this.resourceProvider.resources();
-        C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor(defaultNamespace);
+        C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor.Builder().setDefaultNamespace(defaultNamespace).build();
         for (HasMetadata r : resources) {
             VisitorUtils.accept(r, visitor);
         }

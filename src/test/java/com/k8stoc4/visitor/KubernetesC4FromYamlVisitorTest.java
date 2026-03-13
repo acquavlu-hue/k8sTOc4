@@ -20,7 +20,7 @@ class KubernetesC4FromYamlVisitorTest {
              FileInputStream fis = new FileInputStream("src/main/resources/complex.yaml")) {
 
             List<HasMetadata> resources = client.load(fis).items();
-            C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor();
+            C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor.Builder().build();
 
             for (HasMetadata r : resources) {
                 VisitorUtils.accept(r, visitor);

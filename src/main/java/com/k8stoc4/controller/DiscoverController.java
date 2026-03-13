@@ -20,7 +20,7 @@ public class DiscoverController {
 
     public C4DslRenderer.Output execute() {
         final List<HasMetadata> allResources = this.resourceProvider.resources();
-        final C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor();
+        final C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor.Builder().build();
         for (HasMetadata r : allResources) {
             VisitorUtils.accept(r, visitor);
         }

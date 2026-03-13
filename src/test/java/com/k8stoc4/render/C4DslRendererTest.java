@@ -28,7 +28,7 @@ public class C4DslRendererTest {
         InputStream fis = classloader.getResourceAsStream("render/input/complex.yaml");
         final List<HasMetadata> resources = client.load(fis).items();
         client.close();
-        C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor();
+        C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor.Builder().build();
 
         for (HasMetadata r : resources) {
             VisitorUtils.accept(r, visitor);

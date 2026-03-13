@@ -24,18 +24,26 @@ import static com.k8stoc4.visitor.VisitorUtils.containerMatchesSelector;
 
 @Slf4j
 @Getter
-@Setter
 public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
 
     private final C4Model model = new C4Model();
-    private String defaultNS = Constants.DEFAULT_NAMESPACE;;
+    private String defaultNS = Constants.DEFAULT_NAMESPACE;
 
-
-    public C4ModelBuilderVisitor() {
+    private C4ModelBuilderVisitor(Optional<String> defaultNs) {
+        defaultNs.ifPresent(s -> this.defaultNS = s);
     }
 
-    public C4ModelBuilderVisitor(Optional<String> defaultNs) {
-        defaultNs.ifPresent(s -> this.defaultNS = s);
+    public static class Builder {
+        private Optional<String> defaultNamespace = Optional.empty();
+
+        public Builder setDefaultNamespace(final Optional<String> defaultNamespace) {
+            this.defaultNamespace = defaultNamespace;
+            return this;
+        }
+
+        public C4ModelBuilderVisitor build() {
+            return new C4ModelBuilderVisitor(defaultNamespace);
+        }
     }
 
     public void addAllRelationships() {
