@@ -1,7 +1,8 @@
 package com.k8stoc4.cli.commands;
 
+import com.k8stoc4.controller.K8sToC4Controller;
 import com.k8stoc4.controller.RenderOutputWriter;
-import com.k8stoc4.controller.DiscoverController;
+import com.k8stoc4.controller.provider.KubeApiServerInputProvider;
 import com.k8stoc4.controller.writer.FileWriter;
 import com.k8stoc4.controller.writer.SystemOutWriter;
 import com.k8stoc4.render.C4DslRenderer;
@@ -38,7 +39,7 @@ public class DiscoverCommand implements Runnable {
 
     @Override
     public void run() {
-        final DiscoverController controller = new DiscoverController(groupByLabel);
+        final K8sToC4Controller controller = new K8sToC4Controller(new KubeApiServerInputProvider(), Optional.empty(), groupByLabel);
         final RenderOutputWriter writer = output.isPresent() ? new FileWriter(output.get()) : new SystemOutWriter();
 
         if (refreshInterval.isPresent()) {

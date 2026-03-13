@@ -1,7 +1,8 @@
 package com.k8stoc4.cli.commands;
 
-import com.k8stoc4.controller.ParseController;
+import com.k8stoc4.controller.K8sToC4Controller;
 import com.k8stoc4.controller.RenderOutputWriter;
+import com.k8stoc4.controller.provider.FileInputProvider;
 import com.k8stoc4.controller.writer.FileWriter;
 import com.k8stoc4.controller.writer.SystemOutWriter;
 import com.k8stoc4.render.C4DslRenderer;
@@ -45,7 +46,7 @@ public class ParseCommand implements Runnable {
 
     @Override
     public void run() {
-        final C4DslRenderer.Output renderOutput = new ParseController(input, defaultNs, groupByLabel).execute();
+        final C4DslRenderer.Output renderOutput = new K8sToC4Controller(new FileInputProvider(input), defaultNs, groupByLabel).execute();
         final RenderOutputWriter writer = output.isPresent() ? new FileWriter(output.get()) : new SystemOutWriter();
         writer.write(renderOutput);
     }
