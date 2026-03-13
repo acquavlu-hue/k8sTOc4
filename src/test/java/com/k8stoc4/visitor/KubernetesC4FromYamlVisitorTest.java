@@ -79,7 +79,7 @@ class KubernetesC4FromYamlVisitorTest {
         assertEquals("StatefulSet", postgresDeployment.getKind());
         assertEquals("demo-app", postgresDeployment.getNamespace());
         assertEquals("postgres:14", postgresDeployment.getImage());
-        assertEquals(Map.of("app", "postgres"), postgresDeployment.getLabels());
+        assertEquals(Map.of("app", "postgres"), postgresDeployment.getResource().getMetadata().getLabels());
 
         C4Component postgresService = components.get("service_postgres");
         assertNotNull(postgresService, "Postgres service should exist");
@@ -91,7 +91,7 @@ class KubernetesC4FromYamlVisitorTest {
         assertEquals("redis", redisDeployment.getName());
         assertEquals("Deployment", redisDeployment.getKind());
         assertEquals("redis:7", redisDeployment.getImage());
-        assertEquals(Map.of("app", "redis"), redisDeployment.getLabels());
+        assertEquals(Map.of("app", "redis"), redisDeployment.getResource().getMetadata().getLabels());
 
         C4Component redisService = components.get("service_redis");
         assertNotNull(redisService, "Redis service should exist");
@@ -102,13 +102,13 @@ class KubernetesC4FromYamlVisitorTest {
         assertNotNull(messageBrokerDeployment, "Message broker deployment should exist");
         assertEquals("message-broker", messageBrokerDeployment.getName());
         assertEquals("rabbitmq:3-management", messageBrokerDeployment.getImage());
-        assertEquals(Map.of("app", "rabbitmq"), messageBrokerDeployment.getLabels());
+        assertEquals(Map.of("app", "rabbitmq"), messageBrokerDeployment.getResource().getMetadata().getLabels());
 
         C4Component backendDeployment = components.get("deployment_backend");
         assertNotNull(backendDeployment, "Backend deployment should exist");
         assertEquals("backend", backendDeployment.getName());
         assertEquals("yourorg/backend:1.0", backendDeployment.getImage());
-        assertEquals(Map.of("app", "backend"), backendDeployment.getLabels());
+        assertEquals(Map.of("app", "backend"), backendDeployment.getResource().getMetadata().getLabels());
 
         C4Component authDeployment = components.get("deployment_auth");
         assertNotNull(authDeployment, "Auth deployment should exist");
@@ -195,37 +195,37 @@ class KubernetesC4FromYamlVisitorTest {
         assertNotNull(namespace, "Namespace should exist");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.service_postgres") 
+                .anyMatch(r -> r.getSource().equals("demo-app.service_postgres")
                     && r.getTarget().equals("demo-app.statefulset_postgres")
                     && r.getDescription().equals(Constants.ROUTES_TO_RELATIONSHIP)),
                 "Service postgres should route to statefulset postgres");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.service_redis") 
+                .anyMatch(r -> r.getSource().equals("demo-app.service_redis")
                     && r.getTarget().equals("demo-app.deployment_redis")
                     && r.getDescription().equals(Constants.ROUTES_TO_RELATIONSHIP)),
                 "Service redis should route to deployment redis");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.service_backend") 
+                .anyMatch(r -> r.getSource().equals("demo-app.service_backend")
                     && r.getTarget().equals("demo-app.deployment_backend")
                     && r.getDescription().equals(Constants.ROUTES_TO_RELATIONSHIP)),
                 "Service backend should route to deployment backend");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.service_auth") 
+                .anyMatch(r -> r.getSource().equals("demo-app.service_auth")
                     && r.getTarget().equals("demo-app.deployment_auth")
                     && r.getDescription().equals(Constants.ROUTES_TO_RELATIONSHIP)),
                 "Service auth should route to deployment auth");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.service_frontend") 
+                .anyMatch(r -> r.getSource().equals("demo-app.service_frontend")
                     && r.getTarget().equals("demo-app.deployment_frontend")
                     && r.getDescription().equals(Constants.ROUTES_TO_RELATIONSHIP)),
                 "Service frontend should route to deployment frontend");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.service_message-broker") 
+                .anyMatch(r -> r.getSource().equals("demo-app.service_message-broker")
                     && r.getTarget().equals("demo-app.deployment_message-broker")
                     && r.getDescription().equals(Constants.ROUTES_TO_RELATIONSHIP)),
                 "Service message-broker should route to deployment message-broker");
@@ -236,19 +236,19 @@ class KubernetesC4FromYamlVisitorTest {
         assertNotNull(namespace, "Namespace should exist");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.ingress_demo-ingress") 
+                .anyMatch(r -> r.getSource().equals("demo-app.ingress_demo-ingress")
                     && r.getTarget().equals("demo-app.service_frontend")
                     && r.getDescription().equals(Constants.ROUTES_HTTP_RELATIONSHIP)),
                 "Ingress should route HTTP traffic to frontend service");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.ingress_demo-ingress") 
+                .anyMatch(r -> r.getSource().equals("demo-app.ingress_demo-ingress")
                     && r.getTarget().equals("demo-app.service_backend")
                     && r.getDescription().equals(Constants.ROUTES_HTTP_RELATIONSHIP)),
                 "Ingress should route HTTP traffic to backend service");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.ingress_demo-ingress") 
+                .anyMatch(r -> r.getSource().equals("demo-app.ingress_demo-ingress")
                     && r.getTarget().equals("demo-app.service_auth")
                     && r.getDescription().equals(Constants.ROUTES_HTTP_RELATIONSHIP)),
                 "Ingress should route HTTP traffic to auth service");
@@ -259,19 +259,19 @@ class KubernetesC4FromYamlVisitorTest {
         assertNotNull(namespace, "Namespace should exist");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.deployment_frontend") 
+                .anyMatch(r -> r.getSource().equals("demo-app.deployment_frontend")
                     && r.getTarget().equals("demo-app.configmap_frontend-config")
                     && r.getTechnology().equals(Constants.CONFIGMAP_TECHNOLOGY)),
                 "Frontend deployment should mount frontend-config configmap");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.deployment_backend") 
+                .anyMatch(r -> r.getSource().equals("demo-app.deployment_backend")
                     && r.getTarget().equals("demo-app.secret_db-credentials")
                     && r.getTechnology().equals(Constants.SECRET_TECHNOLOGY)),
                 "Backend deployment should mount db-credentials secret (envFrom)");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.statefulset_postgres") 
+                .anyMatch(r -> r.getSource().equals("demo-app.statefulset_postgres")
                     && r.getTarget().equals("demo-app.secret_db-credentials")
                     && r.getTechnology().equals(Constants.SECRET_TECHNOLOGY)),
                 "Postgres statefulset should mount db-credentials secret (env)");
@@ -282,7 +282,7 @@ class KubernetesC4FromYamlVisitorTest {
         assertNotNull(namespace, "Namespace should exist");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.horizontalpodautoscaler_backend-hpa") 
+                .anyMatch(r -> r.getSource().equals("demo-app.horizontalpodautoscaler_backend-hpa")
                     && r.getTarget().equals("demo-app.deployment_backend")
                     && r.getDescription().equals(Constants.SCALES_RELATIONSHIP)
                     && r.getTechnology().equals(Constants.TECHNOLOGY_HPA)),
@@ -294,7 +294,7 @@ class KubernetesC4FromYamlVisitorTest {
         assertNotNull(namespace, "Namespace should exist");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.poddisruptionbudget_backend-pdb") 
+                .anyMatch(r -> r.getSource().equals("demo-app.poddisruptionbudget_backend-pdb")
                     && r.getTarget().equals("demo-app.deployment_backend")
                     && r.getDescription().equals(Constants.PROTECTS_RELATIONSHIP)
                     && r.getTechnology().equals(Constants.TECHNOLOGY_PDB)),
@@ -306,14 +306,14 @@ class KubernetesC4FromYamlVisitorTest {
         assertNotNull(namespace, "Namespace should exist");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.statefulset_postgres") 
+                .anyMatch(r -> r.getSource().equals("demo-app.statefulset_postgres")
                     && r.getTarget().equals("demo-app.serviceaccount_demo-app-sa")
                     && r.getDescription().equals(Constants.USES_RELATIONSHIP)
                     && r.getTechnology().equals(Constants.TECHNOLOGY_SERVICEACCOUNT)),
                 "Postgres statefulset should use demo-app-sa service account");
 
         assertTrue(namespace.getRelationships().stream()
-                .anyMatch(r -> r.getSource().equals("demo-app.deployment_backend") 
+                .anyMatch(r -> r.getSource().equals("demo-app.deployment_backend")
                     && r.getTarget().equals("demo-app.serviceaccount_demo-app-sa")
                     && r.getDescription().equals(Constants.USES_RELATIONSHIP)
                     && r.getTechnology().equals(Constants.TECHNOLOGY_SERVICEACCOUNT)),

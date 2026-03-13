@@ -67,7 +67,7 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
     public void groupComponentsByLabel(String labelKey) {
         for (C4Namespace namespace : model.getNamespaces().values()) {
             for (C4Component component : new HashSet<>(namespace.getComponents())) {
-                String labelValue = component.getLabels().get(labelKey);
+                final String labelValue = component.getResource().getMetadata().getLabels().get(labelKey);
                 if (labelValue != null && !labelValue.isEmpty()) {
                     C4LabelGroup group = namespace.getOrCreateLabelGroup(labelKey, labelValue);
                     group.addComponents(component);
@@ -589,7 +589,7 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
         if (podSpec != null && podSpec.getContainers() != null) {
             Container c = podSpec.getContainers().get(0);
             component.setImage(c.getImage());
-            component.setMetadata(labels);
+            component.getResource().getMetadata().getLabels().putAll(labels);
 
             if (c.getEnvFrom() != null) {
                 for (EnvFromSource envFrom : c.getEnvFrom()) {

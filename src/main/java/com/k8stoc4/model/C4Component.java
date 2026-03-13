@@ -24,7 +24,6 @@ public class C4Component {
     private String image;
     private String kind;
     private String description = "";
-    private Map<String, String> metadata = new LinkedHashMap<>();
     private Map<String, String> env = new LinkedHashMap<>();
     private HasMetadata resource;
     
@@ -35,19 +34,4 @@ public class C4Component {
         this.name = name;
         this.kind = kind;
     }
-
-    public Map<String, String> getLabels() {
-        // Ritorna le labels del PodTemplate (settate in metadata) per il matching dei Service selector
-        if (metadata != null && !metadata.isEmpty()) {
-            return metadata;
-        }
-        return Optional.ofNullable(resource.getMetadata().getLabels())
-                .orElse(Collections.emptyMap());
-    }
-
-    public Map<String, String> getAnnotations() {
-        return Optional.ofNullable(resource.getMetadata().getAnnotations())
-                .orElse(Collections.emptyMap());
-    }
-
 }
