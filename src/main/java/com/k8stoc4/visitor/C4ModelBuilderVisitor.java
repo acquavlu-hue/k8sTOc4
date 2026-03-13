@@ -1,5 +1,6 @@
 package com.k8stoc4.visitor;
 
+import com.k8stoc4.presenter.PresenterUtils;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
@@ -118,7 +119,7 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
         addOwnerRelationship(namespace, component);
         if (pod.getSpec().getNodeName() != null) {
             C4Relationship rel = new C4Relationship(
-                    "node_" + pod.getSpec().getNodeName(),
+                    "node_" + PresenterUtils.sanitizeComponentId(pod.getSpec().getNodeName()),
                     component.getNamespace() + "." + component.getId(),
                     Constants.OWNER_RELATIONSHIP,
                     Constants.K8S_TECHNOLOGY
@@ -660,7 +661,7 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
         component.getResource().getMetadata().getOwnerReferences().forEach(ownerReference -> {
             if (Constants.isClusterScoped(ownerReference.getKind())) {
                 final C4Relationship rel = new C4Relationship(
-                        ownerReference.getKind().toLowerCase() + "_" + ownerReference.getName(),
+                        ownerReference.getKind().toLowerCase() + "_" + PresenterUtils.sanitizeComponentId(ownerReference.getName()),
                         component.getNamespace() + "." + component.getId(),
                         Constants.OWNER_RELATIONSHIP,
                         Constants.K8S_TECHNOLOGY

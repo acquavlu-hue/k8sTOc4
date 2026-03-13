@@ -1,5 +1,6 @@
 package com.k8stoc4.model;
 
+import com.k8stoc4.presenter.PresenterUtils;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -30,7 +31,7 @@ public class C4Component {
     public C4Component(HasMetadata resource, String namespace, String name, String kind) {
         this.namespace = namespace != null ? namespace : Constants.DEFAULT_NAMESPACE;
         this.resource = resource;
-        this.id = kind.toLowerCase() + "_" + name;
+        this.id = kind.toLowerCase() + "_" + PresenterUtils.sanitizeComponentId(name);
         this.name = name;
         this.kind = kind;
     }
