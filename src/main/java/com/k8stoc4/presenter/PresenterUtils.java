@@ -1,6 +1,6 @@
 package com.k8stoc4.presenter;
 
-public class PresenterUtils {
+public final class PresenterUtils {
     private PresenterUtils() {}
 
     public static String sanitizeNamespacedId(final String id) {

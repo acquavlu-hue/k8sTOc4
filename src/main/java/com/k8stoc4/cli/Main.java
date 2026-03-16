@@ -11,7 +11,7 @@ import picocli.CommandLine;
         description = "CLI tool for converting Kubernetes manifests to C4 diagrams",
         subcommands = {ParseCommand.class, DiscoverCommand.class}
 )
-public class Main implements Runnable {
+public final class Main implements Runnable {
 
     private Main() {}
 

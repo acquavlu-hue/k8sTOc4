@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 import static com.k8stoc4.visitor.VisitorUtils.containerMatchesSelector;
 
 @Slf4j
-public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
+public final class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
 
     private final C4Model model = new C4Model();
     private final String defaultNS;

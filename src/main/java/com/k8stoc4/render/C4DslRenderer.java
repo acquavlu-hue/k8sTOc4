@@ -107,7 +107,7 @@ public class C4DslRenderer {
         return sb.toString();
     }
 
-    public static class Output {
+    public static final class Output {
         private final String model;
         private final String spec;
         private final String view;
