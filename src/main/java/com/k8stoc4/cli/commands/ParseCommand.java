@@ -52,6 +52,8 @@ public class ParseCommand implements Runnable {
     )
     private boolean rewriteMissing;
 
+    public ParseCommand() {}
+
     @Override
     public void run() {
         final C4DslRenderer.Output renderOutput = new K8sToC4Controller(new FileInputProvider(input), defaultNs, groupByLabel, rewriteMissing).execute();

@@ -18,13 +18,13 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class C4LabelGroupPresenterTest {
-    final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+    private final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 
     @SneakyThrows
     @Test
     void testLabelGroup() {
         try(final KubernetesClient client = new KubernetesClientBuilder().build()) {
-            InputStream fis = classloader.getResourceAsStream("presenter/bases/simple-component.yaml");
+            final InputStream fis = classloader.getResourceAsStream("presenter/bases/simple-component.yaml");
             final List<HasMetadata> resources = client.load(fis).items();
             final C4Component component = new C4Component(resources.get(0), "default", "simple-component", "Pod");
             final C4LabelGroup labelGroup = new C4LabelGroup("test-label-group", "label-key", "label-value");

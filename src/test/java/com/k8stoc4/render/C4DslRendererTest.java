@@ -19,16 +19,16 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class C4DslRendererTest {
-    final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+    private final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 
     @SneakyThrows
     @Test
     void testRender() {
         final KubernetesClient client = new KubernetesClientBuilder().build();
-        InputStream fis = classloader.getResourceAsStream("render/input/complex.yaml");
+        final InputStream fis = classloader.getResourceAsStream("render/input/complex.yaml");
         final List<HasMetadata> resources = client.load(fis).items();
         client.close();
-        C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor.Builder().build();
+        final C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor.Builder().build();
 
         for (HasMetadata r : resources) {
             VisitorUtils.accept(r, visitor);
@@ -36,8 +36,8 @@ class C4DslRendererTest {
 
         visitor.addAllRelationships();
 
-        C4Model model = visitor.getModel();
-        C4DslRenderer renderer = new C4DslRenderer();
+        final C4Model model = visitor.getModel();
+        final C4DslRenderer renderer = new C4DslRenderer();
         final C4DslRenderer.Output output = renderer.render(model);
         final String expectedSpec = new BufferedReader(new InputStreamReader(Objects.requireNonNull(classloader.getResourceAsStream("render/output/expected-complex-spec.txt")))).lines().collect(Collectors.joining("\n")) + "\n";
         final String expectedModel = new BufferedReader(new InputStreamReader(Objects.requireNonNull(classloader.getResourceAsStream("render/output/expected-complex-model.txt")))).lines().collect(Collectors.joining("\n")) + "\n";

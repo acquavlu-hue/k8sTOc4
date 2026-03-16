@@ -4,6 +4,8 @@ import com.k8stoc4.controller.RenderOutputWriter;
 import com.k8stoc4.render.C4DslRenderer;
 
 public class SystemOutWriter implements RenderOutputWriter {
+    public SystemOutWriter() {}
+
     @Override
     public void write(final C4DslRenderer.Output output) {
         System.out.println(output.getSpec());

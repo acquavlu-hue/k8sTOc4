@@ -62,7 +62,7 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
 
     public void groupComponentsByLabel(final String labelKey) {
         for (final C4Namespace namespace : model.getNamespaces().values()) {
-            for (final C4Component component : new HashSet<>(namespace.getComponents())) {
+            for (final C4Component component : namespace.getComponents()) {
                 final String labelValue = component.getResource().getMetadata().getLabels().get(labelKey);
                 if (labelValue != null && !labelValue.isEmpty()) {
                     final C4LabelGroup group = namespace.getOrCreateLabelGroup(labelKey, labelValue);
@@ -282,7 +282,9 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
                     .getSpec()
                     .getContainers()
                     .forEach(container -> {
-                        if (container.getEnv() == null) return;
+                        if (container.getEnv() == null) {
+                            return;
+                        }
                         container.getEnv().stream()
                             .map(EnvVar::getValue)
                             .filter(this::isHttpUrl)
@@ -314,7 +316,7 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
     private void addServiceRelationships() {
         for (final C4Namespace namespace : model.getNamespaces().values()) {
             for (final C4Component component : namespace.getComponents()) {
-                if (component.getKind().equalsIgnoreCase("service")) {
+                if ("service".equalsIgnoreCase(component.getKind())) {
                     final Map<String, String> selector = ((Service)component.getResource()).getSpec().getSelector();
                     if (selector != null && !selector.isEmpty()) {
                         for (final C4Component targetComp : namespace.getComponents()) {
@@ -466,7 +468,7 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
                     for (final C4Namespace namespace : model.getNamespaces().values()) {
                         if (namespace.getName().equals(claimNamespace)) {
                             for (final C4Component targetComp : namespace.getComponents()) {
-                                if (targetComp.getKind().equalsIgnoreCase("PersistentVolumeClaim") &&
+                                if ("PersistentVolumeClaim".equalsIgnoreCase(targetComp.getKind()) &&
                                         targetComp.getName().equals(claimName)) {
                                     final C4Relationship rel = new C4Relationship(
                                             component.getId(),
@@ -568,10 +570,10 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
                         }
                     }
 
-                    for (io.fabric8.kubernetes.api.model.rbac.Subject subject : rb.getSubjects()) {
-                        if (subject.getKind().equalsIgnoreCase("ServiceAccount")) {
+                    for (final io.fabric8.kubernetes.api.model.rbac.Subject subject : rb.getSubjects()) {
+                        if ("ServiceAccount".equalsIgnoreCase(subject.getKind())) {
                             for (final C4Component targetComp : namespace.getComponents()) {
-                                if (targetComp.getKind().equalsIgnoreCase("ServiceAccount") &&
+                                if ("ServiceAccount".equalsIgnoreCase(targetComp.getKind()) &&
                                         targetComp.getName().equals(subject.getName())) {
                                     final C4Relationship rel = new C4Relationship(
                                             targetComp.getNamespace() + "." + targetComp.getId(),
@@ -654,11 +656,11 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
     private void addValueFromRelationship(final C4Namespace namespace, final C4Component component, final EnvFromSource valueFrom) {
         final String source = component.getNamespace() + "." + component.getId();
         if (valueFrom.getConfigMapRef() != null) {
-            String target = component.getNamespace() + ".configmap_" + valueFrom.getConfigMapRef().getName();
+            final String target = component.getNamespace() + ".configmap_" + valueFrom.getConfigMapRef().getName();
             namespace.addRelationship(new C4Relationship(source, target, Constants.MOUNT_RELATIONSHIP, Constants.CONFIGMAP_TECHNOLOGY));
         }
         if (valueFrom.getSecretRef() != null) {
-            String target = component.getNamespace() + ".secret_" + valueFrom.getSecretRef().getName();
+            final String target = component.getNamespace() + ".secret_" + valueFrom.getSecretRef().getName();
             namespace.addRelationship(new C4Relationship(source, target, Constants.MOUNT_RELATIONSHIP, Constants.SECRET_TECHNOLOGY));
         }
     }
@@ -666,11 +668,11 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
     private void addValueFromKeyRelationship(final C4Namespace namespace, final C4Component component, final EnvVarSource valueFrom) {
         final String source = component.getNamespace() + "." + component.getId();
         if (valueFrom.getConfigMapKeyRef() != null) {
-            String target = component.getNamespace() + ".configmap_" + valueFrom.getConfigMapKeyRef().getName();
+            final String target = component.getNamespace() + ".configmap_" + valueFrom.getConfigMapKeyRef().getName();
             namespace.addRelationship(new C4Relationship(source, target, Constants.MOUNT_RELATIONSHIP, Constants.CONFIGMAP_TECHNOLOGY));
         }
         if (valueFrom.getSecretKeyRef() != null) {
-            String target = component.getNamespace() + ".secret_" + valueFrom.getSecretKeyRef().getName();
+            final String target = component.getNamespace() + ".secret_" + valueFrom.getSecretKeyRef().getName();
             namespace.addRelationship(new C4Relationship(source, target, Constants.MOUNT_RELATIONSHIP, Constants.SECRET_TECHNOLOGY));
         }
     }

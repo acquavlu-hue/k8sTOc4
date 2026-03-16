@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 public class C4DslRenderer {
     private static final String INDENT_STRING = "    ";
 
+    public C4DslRenderer() {}
+
     public Output render(final C4Model model) {
         return new Output(renderModel(model), renderSpec(model), renderViews(model));
     }
@@ -26,7 +28,7 @@ public class C4DslRenderer {
         final StringBuilder sb = new StringBuilder();
         sb.append("model {\n");
         sb.append(renderClusterScoped(model));
-        for (C4Namespace namespace : model.getNamespaces().values()) {
+        for (final C4Namespace namespace : model.getNamespaces().values()) {
             sb.append(C4NamespacePresenter.present(namespace).lines().map(it -> INDENT_STRING + it ).collect(Collectors.joining("\n"))).append("\n");
         }
         sb.append("}\n");
@@ -66,7 +68,7 @@ public class C4DslRenderer {
         sb.append("            opacity 25%\n");
         sb.append("        }\n");
         sb.append("    }\n");
-        for (String elementName: model.getSpecifications()) {
+        for (final String elementName: model.getSpecifications()) {
             if (!"namespace".equals(elementName)) {
                 sb.append(INDENT_STRING).append("element ").append(elementName).append("\n");
             }
@@ -92,7 +94,7 @@ public class C4DslRenderer {
             sb.append("        include ").append(model.getNamespaces().values().stream().map(namespace -> namespace.getName() + "._").collect(Collectors.joining(", "))).append("\n");
             sb.append("    }\n");
         }
-        for (C4Namespace namespace : model.getNamespaces().values()) {
+        for (final C4Namespace namespace : model.getNamespaces().values()) {
             sb.append("    view of ").append(namespace.getName()).append(" {\n");
             sb.append("        title 'Namespaces / ").append(namespace.getName()).append("'\n");
             sb.append("        include *\n");

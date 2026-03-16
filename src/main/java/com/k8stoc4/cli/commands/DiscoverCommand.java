@@ -45,6 +45,8 @@ public class DiscoverCommand implements Runnable {
     )
     private boolean rewriteMissing;
 
+    public DiscoverCommand() {}
+
     @Override
     public void run() {
         final K8sToC4Controller controller = new K8sToC4Controller(new KubeApiServerInputProvider(), Optional.empty(), groupByLabel, rewriteMissing);
