@@ -13,7 +13,6 @@ import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.api.model.autoscaling.v2.HorizontalPodAutoscaler;
 import io.fabric8.kubernetes.api.model.networking.v1.Ingress;
-import io.fabric8.kubernetes.api.model.networking.v1.IngressRule;
 import io.fabric8.kubernetes.api.model.networking.v1.NetworkPolicy;
 import io.fabric8.kubernetes.api.model.policy.v1.PodDisruptionBudget;
 import io.fabric8.kubernetes.api.model.storage.StorageClass;
@@ -22,11 +21,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.k8stoc4.visitor.VisitorUtils.containerMatchesSelector;
 
@@ -208,66 +210,66 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
 
     @Override
     public void visit(Ingress ing) {
-        model.getSpecifications().add(ing.getKind().toLowerCase());
-        String ns = Optional.ofNullable(ing.getMetadata().getNamespace()).orElse(defaultNS);
-        C4Namespace namespace = getOrCreateSystem(ns);
-        C4Component ingress = new C4Component(ing, ns, ing.getMetadata().getName(), ing.getKind());
-        namespace.addComponents(ingress);
-
-        for (IngressRule rule : ing.getSpec().getRules()) {
-            rule.getHttp().getPaths().forEach(path -> {
-                String svcName = path.getBackend().getService().getName();
-                namespace.addRelationship(new C4Relationship(
-                        ingress.getNamespace()+"."+ingress.getId(),
-                        ingress.getNamespace()+".service_"+svcName,
-                        Constants.ROUTES_HTTP_RELATIONSHIP,
-                        Constants.TECHNOLOGY_HTTP
-                ));
-            });
-        }
+        visitIngress(ing, () ->
+            ing.getSpec()
+                .getRules()
+                .stream()
+                .flatMap(r -> {
+                    if (r.getHttp() != null) {
+                        return r.getHttp()
+                            .getPaths()
+                            .stream()
+                            .map(p -> p.getBackend().getService().getName());
+                    } else {
+                        return Stream.empty();
+                    }
+                })
+                .distinct()
+                .collect(Collectors.toList())
+        );
     }
 
     @Override
     public void visit(io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress ing) {
-        model.getSpecifications().add(ing.getKind().toLowerCase());
-        String ns = Optional.ofNullable(ing.getMetadata().getNamespace()).orElse(defaultNS);
-        C4Namespace namespace = getOrCreateSystem(ns);
-        C4Component ingress = new C4Component(ing, ns, ing.getMetadata().getName(), ing.getKind());
-        namespace.addComponents(ingress);
-
-        for (io.fabric8.kubernetes.api.model.networking.v1beta1.IngressRule rule : ing.getSpec().getRules()) {
-            rule.getHttp().getPaths().forEach(path -> {
-                String svcName = path.getBackend().getServiceName();
-                namespace.addRelationship(new C4Relationship(
-                        ingress.getNamespace() + "." + ingress.getId(),
-                        ingress.getNamespace() + ".service_" + svcName,
-                        Constants.ROUTES_HTTP_RELATIONSHIP,
-                        Constants.TECHNOLOGY_HTTP
-                ));
-            });
-        }
+        visitIngress(ing, () ->
+            ing.getSpec()
+                .getRules()
+                .stream()
+                .flatMap(r -> {
+                    if (r.getHttp() != null) {
+                        return r.getHttp()
+                            .getPaths()
+                            .stream()
+                            .map(p -> p.getBackend().getServiceName());
+                    } else {
+                        return Stream.empty();
+                    }
+                })
+                .distinct()
+                .collect(Collectors.toList())
+        );
     }
 
     @Override
     public void visit(io.fabric8.kubernetes.api.model.extensions.Ingress ing) {
-        model.getSpecifications().add(ing.getKind().toLowerCase());
-        String ns = Optional.ofNullable(ing.getMetadata().getNamespace()).orElse(defaultNS);
-        C4Namespace namespace = getOrCreateSystem(ns);
-        C4Component ingress = new C4Component(ing, ns, ing.getMetadata().getName(), ing.getKind());
+        final C4Component ingress = visitIngress(ing, () ->
+            ing.getSpec()
+                .getRules()
+                .stream()
+                .flatMap(r -> {
+                    if (r.getHttp() != null) {
+                        return r.getHttp()
+                            .getPaths()
+                            .stream()
+                            .map(p -> p.getBackend().getServiceName());
+                    } else {
+                        return Stream.empty();
+                    }
+                })
+                .distinct()
+                .collect(Collectors.toList())
+        );
         ingress.setDescription(ing.getSpec().getRules().get(0).getHost());
-        namespace.addComponents(ingress);
-
-        for (io.fabric8.kubernetes.api.model.extensions.IngressRule rule : ing.getSpec().getRules()) {
-            rule.getHttp().getPaths().forEach(path -> {
-                String svcName = path.getBackend().getServiceName();
-                namespace.addRelationship(new C4Relationship(
-                        ingress.getNamespace() + "." + ingress.getId(),
-                        ingress.getNamespace() + ".service_" + svcName,
-                        Constants.ROUTES_HTTP_RELATIONSHIP,
-                        Constants.TECHNOLOGY_HTTP
-                ));
-            });
-        }
     }
 
     @Override
@@ -715,5 +717,22 @@ public class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
                 namespace.addRelationship(rel);
             }
         });
+    }
+
+    private C4Component visitIngress(final HasMetadata resource, final Supplier<List<String>> serviceNamesSupplier) {
+        model.getSpecifications().add(resource.getKind().toLowerCase());
+        final String ns = Optional.ofNullable(resource.getMetadata().getNamespace()).orElse(defaultNS);
+        final C4Namespace namespace = getOrCreateSystem(ns);
+        final C4Component ingress = new C4Component(resource, ns, resource.getMetadata().getName(), resource.getKind());
+        namespace.addComponents(ingress);
+
+        serviceNamesSupplier.get().forEach(svcName -> namespace.addRelationship(new C4Relationship(
+                ingress.getNamespace() + "." + ingress.getId(),
+                ingress.getNamespace() + ".service_" + svcName,
+                Constants.ROUTES_HTTP_RELATIONSHIP,
+                Constants.TECHNOLOGY_HTTP
+        )));
+
+        return ingress;
     }
 }
