@@ -8,7 +8,7 @@ import picocli.CommandLine;
         name = "k8stoc4",
         mixinStandardHelpOptions = true,
         version = "1.0",
-        description = "CLI tool per convertire manifest Kubernetes in diagrammi C4",
+        description = "CLI tool for converting Kubernetes manifests to C4 diagrams",
         subcommands = {ParseCommand.class, DiscoverCommand.class}
 )
 public class Main implements Runnable {
@@ -20,6 +20,7 @@ public class Main implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Usa un sottocomando: parse");
+        System.err.println("Error: specify a subcommand");
+        CommandLine.usage(Main.class, System.out);
     }
 }
