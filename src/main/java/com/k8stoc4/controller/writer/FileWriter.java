@@ -28,9 +28,9 @@ public class FileWriter implements RenderOutputWriter {
             this.createOrOverwriteFile(Paths.get(this.outputDir, MODEL_FILE), output.getModel());
             this.createOrOverwriteFile(Paths.get(this.outputDir, VIEW_FILE), output.getView());
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write output files", e);
+            throw new FileWriteException("Failed to write output files", e);
         } catch (SecurityException e) {
-            throw new RuntimeException("Failed to create output directory", e);
+            throw new FileWriteException("Failed to create output directory", e);
         }
     }
 

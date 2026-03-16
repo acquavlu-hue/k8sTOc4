@@ -5,7 +5,10 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -27,9 +30,9 @@ public class FileInputProvider implements ResourceProvider {
             final String s = new String(fis.readAllBytes(), Charset.defaultCharset());
             return client.load(new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8))).items();
         } catch (FileNotFoundException e) {
-            throw new RuntimeException("Input file not found: " + input, e);
+            throw new ResourceReadException("Input file not found: " + input, e);
         } catch (IOException e) {
-            throw new RuntimeException("Error reading input file: " + input, e);
+            throw new ResourceReadException("Error reading input file: " + input, e);
         }
     }
 }
