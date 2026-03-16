@@ -1,16 +1,21 @@
 package com.k8stoc4.render;
 
+import com.k8stoc4.model.C4Component;
+import com.k8stoc4.model.C4Model;
+import com.k8stoc4.model.C4Namespace;
+import com.k8stoc4.model.C4Relationship;
+import com.k8stoc4.model.Constants;
 import com.k8stoc4.presenter.C4ComponentPresenter;
 import com.k8stoc4.presenter.C4NamespacePresenter;
 import com.k8stoc4.presenter.C4RelationshipPresenter;
 import lombok.extern.slf4j.Slf4j;
-import com.k8stoc4.model.*;
 
-import java.util.*;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class C4DslRenderer {
+    private static final String INDENT_STRING = "    ";
 
     public Output render(final C4Model model) {
         return new Output(renderModel(model), renderSpec(model), renderViews(model));
@@ -19,10 +24,10 @@ public class C4DslRenderer {
     // Render principale: workspace
     private String renderModel(C4Model model) {
         StringBuilder sb = new StringBuilder();
-        sb.append("model").append(" {\n");
+        sb.append("model {\n");
         sb.append(renderClusterScoped(model));
         for (C4Namespace namespace : model.getNamespaces().values()) {
-            sb.append(C4NamespacePresenter.present(namespace).lines().map(it -> "    " + it ).collect(Collectors.joining("\n"))).append("\n");
+            sb.append(C4NamespacePresenter.present(namespace).lines().map(it -> INDENT_STRING + it ).collect(Collectors.joining("\n"))).append("\n");
         }
         sb.append("}\n");
         return sb.toString();
@@ -36,12 +41,12 @@ public class C4DslRenderer {
         StringBuilder sb = new StringBuilder();
         sb.append("    // Cluster-scoped resources\n");
         for (final C4Component component : model.getClusterScopedComponents()) {
-            sb.append(C4ComponentPresenter.present(component).lines().map(it -> "    " + it).collect(Collectors.joining("\n"))).append("\n");
+            sb.append(C4ComponentPresenter.present(component).lines().map(it -> INDENT_STRING + it).collect(Collectors.joining("\n"))).append("\n");
         }
         sb.append("    // Cross-scope relationships\n");
         sb.append("    // Total model relationships: ").append(model.getRelationships().size()).append("\n");
         for (final C4Relationship relationship : model.getRelationships()) {
-            sb.append(C4RelationshipPresenter.present(relationship).lines().map(it -> "    " + it).collect(Collectors.joining("\n"))).append("\n");
+            sb.append(C4RelationshipPresenter.present(relationship).lines().map(it -> INDENT_STRING + it).collect(Collectors.joining("\n"))).append("\n");
         }
 
         return sb.toString();
@@ -49,7 +54,7 @@ public class C4DslRenderer {
 
     private String renderSpec(C4Model model) {
         StringBuilder sb = new StringBuilder();
-        sb.append("specification ").append("{").append("\n");
+        sb.append("specification {\n");
         sb.append("    element ").append(Constants.MISSING_TYPE).append(" {\n");
         sb.append("        style {\n");
         sb.append("            color red\n");
@@ -61,9 +66,9 @@ public class C4DslRenderer {
         sb.append("        }\n");
         sb.append("    }\n");
         for (String elementName: model.getSpecifications()) {
-            sb.append("    ").append("element").append(" ").append(elementName).append("\n");
+            sb.append(INDENT_STRING).append("element ").append(elementName).append("\n");
         }
-        sb.append("    ").append("tag").append(" ").append(Constants.SERVICE2SERVICE_TAG).append("\n");
+        sb.append(INDENT_STRING).append("tag ").append(Constants.SERVICE2SERVICE_TAG).append("\n");
         sb.append("}\n");
         return sb.toString();
     }
