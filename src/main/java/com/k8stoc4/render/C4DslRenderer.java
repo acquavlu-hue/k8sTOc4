@@ -15,8 +15,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class C4DslRenderer {
-    private static final String INDENT_STRING = "    ";
-
     public C4DslRenderer() {}
 
     public Output render(final C4Model model) {
@@ -29,7 +27,7 @@ public class C4DslRenderer {
         sb.append("model {\n");
         sb.append(renderClusterScoped(model));
         for (final C4Namespace namespace : model.getNamespaces().values()) {
-            sb.append(C4NamespacePresenter.present(namespace).lines().map(it -> INDENT_STRING + it ).collect(Collectors.joining("\n"))).append("\n");
+            sb.append(C4NamespacePresenter.present(namespace).lines().map(it -> Constants.INDENT + it ).collect(Collectors.joining("\n"))).append("\n");
         }
         sb.append("}\n");
         return sb.toString();
@@ -41,14 +39,14 @@ public class C4DslRenderer {
         }
 
         final StringBuilder sb = new StringBuilder();
-        sb.append("    // Cluster-scoped resources\n");
+        sb.append(Constants.INDENT).append("// Cluster-scoped resources\n");
         for (final C4Component component : model.getClusterScopedComponents()) {
-            sb.append(C4ComponentPresenter.present(component).lines().map(it -> INDENT_STRING + it).collect(Collectors.joining("\n"))).append("\n");
+            sb.append(C4ComponentPresenter.present(component).lines().map(it -> Constants.INDENT + it).collect(Collectors.joining("\n"))).append("\n");
         }
-        sb.append("    // Cross-scope relationships\n");
-        sb.append("    // Total model relationships: ").append(model.getRelationships().size()).append("\n");
+        sb.append(Constants.INDENT).append("// Cross-scope relationships\n");
+        sb.append(Constants.INDENT).append("// Total model relationships: ").append(model.getRelationships().size()).append("\n");
         for (final C4Relationship relationship : model.getRelationships()) {
-            sb.append(C4RelationshipPresenter.present(relationship).lines().map(it -> INDENT_STRING + it).collect(Collectors.joining("\n"))).append("\n");
+            sb.append(C4RelationshipPresenter.present(relationship).lines().map(it -> Constants.INDENT + it).collect(Collectors.joining("\n"))).append("\n");
         }
 
         return sb.toString();
@@ -57,23 +55,23 @@ public class C4DslRenderer {
     private String renderSpec(final C4Model model) {
         final StringBuilder sb = new StringBuilder();
         sb.append("specification {\n");
-        sb.append("    element ").append(Constants.MISSING_TYPE).append(" {\n");
-        sb.append("        style {\n");
-        sb.append("            color red\n");
-        sb.append("            icon bootstrap:question-square\n");
-        sb.append("        }\n");
-        sb.append("    }\n");
-        sb.append("    element namespace {\n");
-        sb.append("        style {\n");
-        sb.append("            opacity 25%\n");
-        sb.append("        }\n");
-        sb.append("    }\n");
+        sb.append(Constants.INDENT.repeat(1)).append("element ").append(Constants.MISSING_TYPE).append(" {\n");
+        sb.append(Constants.INDENT.repeat(2)).append("style {\n");
+        sb.append(Constants.INDENT.repeat(3)).append("color red\n");
+        sb.append(Constants.INDENT.repeat(3)).append("icon bootstrap:question-square\n");
+        sb.append(Constants.INDENT.repeat(2)).append("}\n");
+        sb.append(Constants.INDENT.repeat(1)).append("}\n");
+        sb.append(Constants.INDENT.repeat(1)).append("element namespace {\n");
+        sb.append(Constants.INDENT.repeat(2)).append("style {\n");
+        sb.append(Constants.INDENT.repeat(3)).append("opacity 25%\n");
+        sb.append(Constants.INDENT.repeat(2)).append("}\n");
+        sb.append(Constants.INDENT.repeat(1)).append("}\n");
         for (final String elementName: model.getSpecifications()) {
             if (!"namespace".equals(elementName)) {
-                sb.append(INDENT_STRING).append("element ").append(elementName).append("\n");
+                sb.append(Constants.INDENT.repeat(1)).append("element ").append(elementName).append("\n");
             }
         }
-        sb.append(INDENT_STRING).append("tag ").append(Constants.SERVICE2SERVICE_TAG).append("\n");
+        sb.append(Constants.INDENT.repeat(1)).append("tag ").append(Constants.SERVICE2SERVICE_TAG).append("\n");
         sb.append("}\n");
         return sb.toString();
     }
@@ -82,26 +80,26 @@ public class C4DslRenderer {
         final Set<C4Component> nodes = model.getClusterScopedComponentsByKind("Node");
         final StringBuilder sb = new StringBuilder();
         sb.append("views {\n");
-        sb.append("    view namespaces {\n");
-        sb.append("        title 'Overviews / Namespaces'\n");
-        sb.append("        include *\n");
-        sb.append("            where kind is namespace\n");
-        sb.append("    }\n");
+        sb.append(Constants.INDENT.repeat(1)).append("view namespaces {\n");
+        sb.append(Constants.INDENT.repeat(2)).append("title 'Overviews / Namespaces'\n");
+        sb.append(Constants.INDENT.repeat(2)).append("include *\n");
+        sb.append(Constants.INDENT.repeat(3)).append("where kind is namespace\n");
+        sb.append(Constants.INDENT.repeat(1)).append("}\n");
         if (!nodes.isEmpty()) {
-            sb.append("    view nodes {\n");
-            sb.append("        title 'Overviews / Nodes'\n");
-            sb.append("        include ").append(nodes.stream().map(C4Component::getId).collect(Collectors.joining(", "))).append("\n");
-            sb.append("        include ").append(model.getNamespaces().values().stream().map(namespace -> namespace.getName() + "._").collect(Collectors.joining(", "))).append("\n");
-            sb.append("    }\n");
+            sb.append(Constants.INDENT.repeat(1)).append("view nodes {\n");
+            sb.append(Constants.INDENT.repeat(2)).append("title 'Overviews / Nodes'\n");
+            sb.append(Constants.INDENT.repeat(2)).append("include ").append(nodes.stream().map(C4Component::getId).collect(Collectors.joining(", "))).append("\n");
+            sb.append(Constants.INDENT.repeat(2)).append("include ").append(model.getNamespaces().values().stream().map(namespace -> namespace.getName() + "._").collect(Collectors.joining(", "))).append("\n");
+            sb.append(Constants.INDENT.repeat(1)).append("}\n");
         }
         for (final C4Namespace namespace : model.getNamespaces().values()) {
-            sb.append("    view of ").append(namespace.getName()).append(" {\n");
-            sb.append("        title 'Namespaces / ").append(namespace.getName()).append("'\n");
-            sb.append("        include *\n");
+            sb.append(Constants.INDENT.repeat(1)).append("view of ").append(namespace.getName()).append(" {\n");
+            sb.append(Constants.INDENT.repeat(2)).append("title 'Namespaces / ").append(namespace.getName()).append("'\n");
+            sb.append(Constants.INDENT.repeat(2)).append("include *\n");
             if (!nodes.isEmpty()) {
-                sb.append("        exclude ").append(nodes.stream().map(C4Component::getId).collect(Collectors.joining(", "))).append("\n");
+                sb.append(Constants.INDENT.repeat(2)).append("exclude ").append(nodes.stream().map(C4Component::getId).collect(Collectors.joining(", "))).append("\n");
             }
-            sb.append("    }\n");
+            sb.append(Constants.INDENT.repeat(1)).append("}\n");
         }
         sb.append("}\n");
         return sb.toString();

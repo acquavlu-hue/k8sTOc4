@@ -2,7 +2,8 @@ package com.k8stoc4.model;
 
 import java.util.Set;
 
-public class Constants {
+public final class Constants {
+    public static final String INDENT = "    ";
     public static final String DEFAULT_NAMESPACE = "default";
     public static final String CLUSTER_LEVEL = "cluster";
     public static final String MOUNT_RELATIONSHIP = "mount";
@@ -58,4 +59,6 @@ public class Constants {
     public static boolean isClusterScoped(final String kind) {
         return CLUSTER_SCOPED_RESOURCES.contains(kind);
     }
+
+    private Constants() {}
 }

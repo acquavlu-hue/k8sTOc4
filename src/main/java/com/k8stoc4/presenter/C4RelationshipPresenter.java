@@ -1,6 +1,7 @@
 package com.k8stoc4.presenter;
 
 import com.k8stoc4.model.C4Relationship;
+import com.k8stoc4.model.Constants;
 
 public class C4RelationshipPresenter {
     public static String present(final C4Relationship relationship) {
@@ -9,13 +10,13 @@ public class C4RelationshipPresenter {
         if (!relationship.getDescription().isBlank() || !relationship.getTechnology().isBlank() || !relationship.getTag().isBlank()) {
             sb.append(" {\n");
             if (!relationship.getTag().isBlank()) {
-                sb.append("    #").append(relationship.getTag()).append('\n');
+                sb.append(Constants.INDENT.repeat(1)).append("#").append(relationship.getTag()).append('\n');
             }
             if (!relationship.getDescription().isBlank()) {
-                sb.append("    description '").append(relationship.getDescription()).append("'\n");
+                sb.append(Constants.INDENT.repeat(1)).append("description '").append(relationship.getDescription()).append("'\n");
             }
             if (!relationship.getTechnology().isBlank()) {
-                sb.append("    technology '").append(relationship.getTechnology()).append("'\n");
+                sb.append(Constants.INDENT.repeat(1)).append("technology '").append(relationship.getTechnology()).append("'\n");
             }
             sb.append('}');
         }
