@@ -5,7 +5,11 @@ specification {
             icon bootstrap:question-square
         }
     }
-    element namespace
+    element namespace {
+        style {
+            opacity 25%
+        }
+    }
     element serviceaccount
     element role
     element rolebinding
