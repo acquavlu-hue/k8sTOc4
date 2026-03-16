@@ -58,7 +58,7 @@ public class C4DslRenderer {
         sb.append(Constants.INDENT.repeat(1)).append("element ").append(Constants.MISSING_TYPE).append(" {\n");
         sb.append(Constants.INDENT.repeat(2)).append("style {\n");
         sb.append(Constants.INDENT.repeat(3)).append("color red\n");
-        sb.append(Constants.INDENT.repeat(3)).append("icon bootstrap:question-square\n");
+        sb.append(Constants.INDENT.repeat(3)).append("icon https://icons.getbootstrap.com/assets/icons/question-square.svg\n");
         sb.append(Constants.INDENT.repeat(2)).append("}\n");
         sb.append(Constants.INDENT.repeat(1)).append("}\n");
         sb.append(Constants.INDENT.repeat(1)).append("element namespace {\n");

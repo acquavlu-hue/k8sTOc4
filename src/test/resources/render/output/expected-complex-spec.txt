@@ -2,7 +2,7 @@ specification {
     element missing {
         style {
             color red
-            icon bootstrap:question-square
+            icon https://icons.getbootstrap.com/assets/icons/question-square.svg
         }
     }
     element namespace {
