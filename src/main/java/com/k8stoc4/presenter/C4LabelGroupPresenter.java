@@ -6,7 +6,8 @@ import com.k8stoc4.model.Constants;
 
 import java.util.stream.Collectors;
 
-public class C4LabelGroupPresenter {
+public final class C4LabelGroupPresenter {
+    private C4LabelGroupPresenter() {}
     public static String present(C4LabelGroup labelGroup) {
         final StringBuilder sb = new StringBuilder();
         sb.append("labelgroup ").append(labelGroup.getName()).append(" {\n");

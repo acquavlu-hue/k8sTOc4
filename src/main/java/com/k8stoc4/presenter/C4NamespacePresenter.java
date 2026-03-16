@@ -4,7 +4,8 @@ import com.k8stoc4.model.*;
 
 import java.util.stream.Collectors;
 
-public class C4NamespacePresenter {
+public final class C4NamespacePresenter {
+    private C4NamespacePresenter() {}
     public static String present(C4Namespace namespace) {
         final StringBuilder sb = new StringBuilder();
         sb.append("namespace ").append(namespace.getName()).append(" {\n");

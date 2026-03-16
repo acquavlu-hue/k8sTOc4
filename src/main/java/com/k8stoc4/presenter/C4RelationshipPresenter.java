@@ -3,7 +3,8 @@ package com.k8stoc4.presenter;
 import com.k8stoc4.model.C4Relationship;
 import com.k8stoc4.model.Constants;
 
-public class C4RelationshipPresenter {
+public final class C4RelationshipPresenter {
+    private C4RelationshipPresenter() {}
     public static String present(final C4Relationship relationship) {
         final StringBuilder sb = new StringBuilder();
         sb.append(PresenterUtils.sanitizeNamespacedId(relationship.getSource())).append(" -> ").append(PresenterUtils.sanitizeNamespacedId(relationship.getTarget()));

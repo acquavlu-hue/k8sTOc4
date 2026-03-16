@@ -30,7 +30,7 @@ class C4DslRendererTest {
         client.close();
         final C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor.Builder().build();
 
-        for (HasMetadata r : resources) {
+        for (final HasMetadata r : resources) {
             VisitorUtils.accept(r, visitor);
         }
 

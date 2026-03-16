@@ -5,7 +5,8 @@ import com.k8stoc4.model.Constants;
 
 import java.util.Map;
 
-public class C4ComponentPresenter {
+public final class C4ComponentPresenter {
+    private C4ComponentPresenter() {}
     public static String present(C4Component component) {
         final StringBuilder sb = new StringBuilder();
         sb.append(component.getKind().toLowerCase()).append(' ').append(PresenterUtils.sanitizeComponentId(component.getId())).append(" '").append(component.getName()).append("' {\n");

@@ -9,7 +9,8 @@ import com.k8stoc4.model.C4Component;
 
 import java.util.Map;
 
-public class VisitorUtils {
+public final class VisitorUtils {
+    private VisitorUtils() {}
 
     public static void accept(final HasMetadata resource,
                               final KubernetesResourceVisitor visitor) {
