@@ -7,10 +7,11 @@ import com.k8stoc4.controller.provider.KubeApiServerInputProvider;
 import com.k8stoc4.controller.writer.FileWriter;
 import com.k8stoc4.controller.writer.SystemOutWriter;
 import com.k8stoc4.render.C4DslRenderer;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.fabric8.kubernetes.api.model.events.v1.Event;
+import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.WatcherException;
 import picocli.CommandLine;
 
-import java.time.Duration;
 import java.util.Optional;
 
 @CommandLine.Command(
@@ -34,11 +35,12 @@ public class DiscoverCommand implements Runnable {
     private Optional<String> groupByLabel;
 
     @CommandLine.Option(
-            names = {"-r", "--refresh-interval"},
-            description = "the number of seconds between reruns. If none, the discovery is performed only once.",
+            names = {"-w", "--watch"},
+            description = "Whether to watch Kubernetes events or run once.",
+            defaultValue = "false",
             required = false
     )
-    private Optional<Integer> refreshInterval;
+    private boolean watch;
 
     @CommandLine.Option(
             names = {"--rewrite-missing"},
@@ -55,19 +57,36 @@ public class DiscoverCommand implements Runnable {
         final K8sToC4Controller controller = new K8sToC4Controller(new KubeApiServerInputProvider(), Optional.empty(), groupByLabel, rewriteMissing);
         final RenderOutputWriter writer = output.isPresent() ? new FileWriter(output.get()) : new SystemOutWriter();
 
-        if (refreshInterval.isPresent()) {
-            while(true) {
-                try {
-                    final C4DslRenderer.Output renderOutput = controller.execute();
-                    writer.write(renderOutput);
-                    Thread.sleep(Duration.ofSeconds(refreshInterval.get()).toMillis());
-                } catch (InterruptedException e) {
-                    System.err.println("Sleep interrupted: " + e.getMessage());
-                }
+        final C4DslRenderer.Output renderOutput = controller.execute();
+        writer.write(renderOutput);
+        if (this.watch) {
+            final EventWatcher watcher = new EventWatcher(controller, writer);
+            while (true) {
+                KubernetesClient.getInstance().getClient().events().v1().events().inAnyNamespace().watch(watcher);
             }
-        } else {
-            final C4DslRenderer.Output renderOutput = controller.execute();
-            writer.write(renderOutput);
+        }
+    }
+
+    private static final class EventWatcher implements Watcher<Event> {
+        private final K8sToC4Controller controller;
+        private final RenderOutputWriter writer;
+
+        public EventWatcher(final K8sToC4Controller controller, final RenderOutputWriter writer) {
+            this.controller = controller;
+            this.writer = writer;
+        }
+
+        @Override
+        public void eventReceived(Action action, Event resource) {
+            if (action == Action.ADDED || action == Action.MODIFIED || action == Action.DELETED) {
+                final C4DslRenderer.Output renderOutput = this.controller.execute();
+                this.writer.write(renderOutput);
+            }
+        }
+
+        @Override
+        public void onClose(WatcherException cause) {
+            System.err.println("Event Watcher closed: " + cause.getLocalizedMessage());
         }
     }
 }
