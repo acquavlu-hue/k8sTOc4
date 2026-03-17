@@ -1,12 +1,11 @@
 package com.k8stoc4.presenter;
 
+import com.k8stoc4.KubernetesClient;
 import com.k8stoc4.model.C4Component;
 import com.k8stoc4.model.C4LabelGroup;
 import com.k8stoc4.model.C4Namespace;
 import com.k8stoc4.model.C4Relationship;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -25,10 +24,8 @@ class C4NamespacePresenterTest {
     @SneakyThrows
     @Test
     void testSimpleNamespace() {
-        final KubernetesClient client = new KubernetesClientBuilder().build();
         final InputStream fis = classloader.getResourceAsStream("presenter/bases/simple-component.yaml");
-        final List<HasMetadata> resources = client.load(fis).items();
-        client.close();
+        final List<HasMetadata> resources = KubernetesClient.getInstance().getClient().load(fis).items();
         final C4Component component = new C4Component(resources.get(0), "default", "simple-component", "Pod");
         final C4Namespace namespace = new C4Namespace("test");
         namespace.addComponents(component);
@@ -39,11 +36,9 @@ class C4NamespacePresenterTest {
     @SneakyThrows
     @Test
     void testComplexNamespace() {
-        final KubernetesClient client = new KubernetesClientBuilder().build();
         final InputStream fis = classloader.getResourceAsStream("presenter/bases/microservice.yaml");
-        final HasMetadata spuriousPod = client.load(classloader.getResourceAsStream("presenter/bases/simple-component.yaml")).items().get(0);
-        final List<HasMetadata> resources = client.load(fis).items();
-        client.close();
+        final HasMetadata spuriousPod = KubernetesClient.getInstance().getClient().load(classloader.getResourceAsStream("presenter/bases/simple-component.yaml")).items().get(0);
+        final List<HasMetadata> resources = KubernetesClient.getInstance().getClient().load(fis).items();
         final C4Namespace namespace = new C4Namespace("complex");
         final C4Component pod = new C4Component(spuriousPod, "default", "spurious-pod", "Pod");
         final C4LabelGroup databaseLabelGroup = namespace.getOrCreateLabelGroup("layer", "database");

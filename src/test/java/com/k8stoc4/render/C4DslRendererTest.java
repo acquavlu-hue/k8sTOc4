@@ -1,11 +1,10 @@
 package com.k8stoc4.render;
 
+import com.k8stoc4.KubernetesClient;
 import com.k8stoc4.model.C4Model;
 import com.k8stoc4.visitor.C4ModelBuilderVisitor;
 import com.k8stoc4.visitor.VisitorUtils;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -24,10 +23,8 @@ class C4DslRendererTest {
     @SneakyThrows
     @Test
     void testRender() {
-        final KubernetesClient client = new KubernetesClientBuilder().build();
         final InputStream fis = classloader.getResourceAsStream("render/input/complex.yaml");
-        final List<HasMetadata> resources = client.load(fis).items();
-        client.close();
+        final List<HasMetadata> resources = KubernetesClient.getInstance().getClient().load(fis).items();
         final C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor.Builder().build();
 
         for (final HasMetadata r : resources) {

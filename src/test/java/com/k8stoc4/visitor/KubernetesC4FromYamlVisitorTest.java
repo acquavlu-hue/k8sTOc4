@@ -1,12 +1,11 @@
 package com.k8stoc4.visitor;
 
+import com.k8stoc4.KubernetesClient;
 import com.k8stoc4.model.C4Component;
 import com.k8stoc4.model.C4Model;
 import com.k8stoc4.model.C4Namespace;
 import com.k8stoc4.model.Constants;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -20,10 +19,9 @@ class KubernetesC4FromYamlVisitorTest {
 
     @Test
     void testComplexYamlParsing() throws Exception {
-        try (final KubernetesClient client = new KubernetesClientBuilder().build();
-             final InputStream fis = classloader.getResourceAsStream("render/input/complex.yaml")) {
+        try (final InputStream fis = classloader.getResourceAsStream("render/input/complex.yaml")) {
 
-            final List<HasMetadata> resources = client.load(fis).items();
+            final List<HasMetadata> resources = KubernetesClient.getInstance().getClient().load(fis).items();
             final C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor.Builder().build();
 
             for (final HasMetadata r : resources) {

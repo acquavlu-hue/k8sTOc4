@@ -1,9 +1,8 @@
 package com.k8stoc4.controller.provider;
 
+import com.k8stoc4.KubernetesClient;
 import com.k8stoc4.controller.ResourceProvider;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
@@ -25,10 +24,9 @@ public class FileInputProvider implements ResourceProvider {
 
     @Override
     public List<HasMetadata> resources() {
-        try (final KubernetesClient client = new KubernetesClientBuilder().build();
-             final InputStream fis = Files.newInputStream(Paths.get(this.input))) {
+        try (final InputStream fis = Files.newInputStream(Paths.get(this.input))) {
             final String s = new String(fis.readAllBytes(), Charset.defaultCharset());
-            return client.load(new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8))).items();
+            return KubernetesClient.getInstance().getClient().load(new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8))).items();
         } catch (FileNotFoundException e) {
             throw new ResourceReadException("Input file not found: " + input, e);
         } catch (IOException e) {

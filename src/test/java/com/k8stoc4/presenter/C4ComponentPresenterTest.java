@@ -1,9 +1,8 @@
 package com.k8stoc4.presenter;
 
+import com.k8stoc4.KubernetesClient;
 import com.k8stoc4.model.C4Component;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -22,12 +21,10 @@ class C4ComponentPresenterTest {
     @SneakyThrows
     @Test
     void testSimpleComponent() {
-        try (final KubernetesClient client = new KubernetesClientBuilder().build()) {
-            final InputStream fis = classloader.getResourceAsStream("presenter/bases/simple-component.yaml");
-            final List<HasMetadata> resources = client.load(fis).items();
-            final C4Component component = new C4Component(resources.get(0), "default", "simple-component", "Pod");
-            final String expected = new BufferedReader(new InputStreamReader(Objects.requireNonNull(classloader.getResourceAsStream("presenter/component/expected-simple-component.txt")))).lines().collect(Collectors.joining("\n")) + "\n";
-            assertEquals(expected, C4ComponentPresenter.present(component));
-        }
+        final InputStream fis = classloader.getResourceAsStream("presenter/bases/simple-component.yaml");
+        final List<HasMetadata> resources = KubernetesClient.getInstance().getClient().load(fis).items();
+        final C4Component component = new C4Component(resources.get(0), "default", "simple-component", "Pod");
+        final String expected = new BufferedReader(new InputStreamReader(Objects.requireNonNull(classloader.getResourceAsStream("presenter/component/expected-simple-component.txt")))).lines().collect(Collectors.joining("\n")) + "\n";
+        assertEquals(expected, C4ComponentPresenter.present(component));
     }
 }
