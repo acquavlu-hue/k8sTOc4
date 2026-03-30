@@ -1,6 +1,5 @@
 package com.k8stoc4.cli.commands;
 
-import com.k8stoc4.controller.K8sToC4Controller;
 import com.k8stoc4.controller.RenderOutputWriter;
 import com.k8stoc4.controller.provider.FileInputProvider;
 import com.k8stoc4.controller.writer.FileWriter;
@@ -8,16 +7,13 @@ import com.k8stoc4.controller.writer.SystemOutWriter;
 import com.k8stoc4.render.C4DslRenderer;
 import picocli.CommandLine;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 
 @CommandLine.Command(
         name = "parse",
         description = "converte i manifest kubernetes in un diagramma likec4"
 )
-public class ParseCommand implements Runnable {
+public class ParseCommand extends CommonCommand implements Runnable {
 
     @CommandLine.Option(
             names = {"-i", "--input"},
@@ -27,45 +23,16 @@ public class ParseCommand implements Runnable {
     private String input;
 
     @CommandLine.Option(
-            names = {"-o", "--output"},
-            description = "output dir",
-            required = false
-    )
-    private Optional<String> output;
-
-    @CommandLine.Option(
             names = {"-n", "--namespace"},
             description = "force namespace",
             required = false
     )
     private Optional<String> defaultNs;
 
-    @CommandLine.Option(
-            names = {"-g","--group-by-label"},
-            description = "label key for grouping (e.g. app.kubernetes.io/name, app)",
-            required = false
-    )
-    private Optional<String> groupByLabel;
-
-    @CommandLine.Option(
-            names = {"--rewrite-missing"},
-            description = "Whether to create entities for missing referenced objects.",
-            defaultValue = "false",
-            required = false
-    )
-    private boolean rewriteMissing;
-
-    public ParseCommand() {}
-
-    @CommandLine.Option(
-            names = {"-e", "--exclude-kind"},
-            description = "The kinds to exclude from the views"
-    )
-    private List<String> kindExclusions = new ArrayList<>();
-
     @Override
     public void run() {
-        final C4DslRenderer.Output renderOutput = new K8sToC4Controller(new FileInputProvider(input), defaultNs, groupByLabel, rewriteMissing, new HashSet<>(kindExclusions)).execute();
+        initController(new FileInputProvider(input), defaultNs);
+        final C4DslRenderer.Output renderOutput = this.controller.execute();
         final RenderOutputWriter writer = output.isPresent() ? new FileWriter(output.get()) : new SystemOutWriter();
         writer.write(renderOutput);
     }

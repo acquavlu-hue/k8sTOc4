@@ -12,29 +12,13 @@ import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
 import picocli.CommandLine;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 
 @CommandLine.Command(
         name = "discover",
         description = "discover the cluster status"
 )
-public class DiscoverCommand implements Runnable {
-
-    @CommandLine.Option(
-            names = {"-o", "--output"},
-            description = "output dir",
-            required = false
-    )
-    private Optional<String> output;
-
-    @CommandLine.Option(
-            names = {"-g","--group-by-label"},
-            description = "label key for grouping (e.g. app.kubernetes.io/name, app)",
-            required = false
-    )
-    private Optional<String> groupByLabel;
+public class DiscoverCommand extends CommonCommand implements Runnable {
 
     @CommandLine.Option(
             names = {"-w", "--watch"},
@@ -44,32 +28,15 @@ public class DiscoverCommand implements Runnable {
     )
     private boolean watch;
 
-    @CommandLine.Option(
-            names = {"--rewrite-missing"},
-            description = "Whether to create entities for missing referenced objects.",
-            defaultValue = "false",
-            required = false
-    )
-    private boolean rewriteMissing;
-
-    @CommandLine.Option(
-            names = {"-e", "--exclude-kind"},
-            description = "The kinds to exclude from the views",
-            defaultValue = "[]"
-    )
-    private List<String> kindExclusions;
-
-    public DiscoverCommand() {}
-
     @Override
     public void run() {
-        final K8sToC4Controller controller = new K8sToC4Controller(new KubeApiServerInputProvider(), Optional.empty(), groupByLabel, rewriteMissing, new HashSet<>(kindExclusions));
+        initController(new KubeApiServerInputProvider(), Optional.empty());
         final RenderOutputWriter writer = output.isPresent() ? new FileWriter(output.get()) : new SystemOutWriter();
 
-        final C4DslRenderer.Output renderOutput = controller.execute();
+        final C4DslRenderer.Output renderOutput = this.controller.execute();
         writer.write(renderOutput);
         if (this.watch) {
-            final EventWatcher watcher = new EventWatcher(controller, writer);
+            final EventWatcher watcher = new EventWatcher(this.controller, writer);
             while (true) {
                 KubernetesClient.getInstance().getClient().events().v1().events().inAnyNamespace().watch(watcher);
             }
