@@ -7,10 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @EqualsAndHashCode
 @Getter
@@ -40,5 +37,17 @@ public class C4Component {
 
     public static C4Component missing(final String namespace, final String name, final String kind) {
         return new C4Component(null, namespace, name, kind);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        final C4Component component = (C4Component) o;
+        return Objects.equals(id, component.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

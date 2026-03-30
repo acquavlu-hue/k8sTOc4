@@ -14,6 +14,7 @@ import io.fabric8.kubernetes.api.model.policy.v1.PodDisruptionBudget;
 import io.fabric8.kubernetes.api.model.storage.StorageClass;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -68,15 +69,16 @@ public final class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
 
     public void groupComponentsByLabel(final String labelKey) {
         for (final C4Namespace namespace : model.getNamespaces().values()) {
-            final List<C4Component> componentsToRemove = List.of();
+            final List<C4Component> componentsToRemove = new ArrayList<>();
             for (final C4Component component : namespace.getComponents()) {
                 final String labelValue = component.getResource().getMetadata().getLabels().get(labelKey);
                 if (labelValue != null && !labelValue.isEmpty()) {
                     final C4LabelGroup group = namespace.getOrCreateLabelGroup(labelKey, labelValue);
                     group.addComponents(component);
+                    componentsToRemove.add(component);
                 }
             }
-            namespace.getComponents().removeAll(componentsToRemove);
+            componentsToRemove.forEach(namespace.getComponents()::remove);
         }
     }
 
