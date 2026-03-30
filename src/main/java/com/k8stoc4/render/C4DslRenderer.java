@@ -73,6 +73,7 @@ public class C4DslRenderer {
             }
         }
         sb.append(Constants.INDENT.repeat(1)).append("tag ").append(Constants.SERVICE2SERVICE_TAG).append("\n");
+        sb.append(Constants.INDENT.repeat(1)).append("tag ").append(Constants.EXTERNAL_SERVICE).append("\n");
         sb.append("}\n");
         return sb.toString();
     }

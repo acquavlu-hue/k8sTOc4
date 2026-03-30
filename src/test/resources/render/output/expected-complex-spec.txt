@@ -26,4 +26,5 @@ specification {
     element poddisruptionbudget
     element daemonset
     tag service2service
+    tag ExternalName
 }

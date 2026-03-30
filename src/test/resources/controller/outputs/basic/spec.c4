@@ -16,4 +16,5 @@ specification {
     element configmap
     element ingress
     tag service2service
+    tag ExternalName
 }

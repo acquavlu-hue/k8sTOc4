@@ -239,7 +239,7 @@ model {
         }
         ingress ingress_demo-ingress 'demo-ingress' {
             technology "Ingress"
-            description "demo.example.com"
+            description ""
             metadata {
                 labels '
                     app: frontend

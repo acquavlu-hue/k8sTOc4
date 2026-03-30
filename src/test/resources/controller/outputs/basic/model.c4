@@ -36,7 +36,7 @@ model {
         }
         ingress ingress_sample-app-ingress 'sample-app-ingress' {
             technology "Ingress"
-            description "sample.example.com"
+            description ""
             metadata {
                 labels '
                 '
