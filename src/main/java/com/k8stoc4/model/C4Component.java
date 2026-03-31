@@ -9,7 +9,6 @@ import lombok.ToString;
 
 import java.util.*;
 
-@EqualsAndHashCode
 @Getter
 @ToString
 public class C4Component {
