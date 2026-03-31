@@ -4,7 +4,6 @@ import com.k8stoc4.controller.RenderOutputWriter;
 import com.k8stoc4.controller.provider.FileInputProvider;
 import com.k8stoc4.controller.writer.FileWriter;
 import com.k8stoc4.controller.writer.SystemOutWriter;
-import com.k8stoc4.render.C4DslRenderer;
 import picocli.CommandLine;
 
 import java.util.Optional;
@@ -32,8 +31,7 @@ public class ParseCommand extends CommonCommand implements Runnable {
     @Override
     public void run() {
         initController(new FileInputProvider(input), defaultNs);
-        final C4DslRenderer.Output renderOutput = this.controller.execute();
         final RenderOutputWriter writer = output.isPresent() ? new FileWriter(output.get()) : new SystemOutWriter();
-        writer.write(renderOutput);
+        this.controller.execute(writer);
     }
 }

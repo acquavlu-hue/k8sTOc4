@@ -6,7 +6,6 @@ import com.k8stoc4.controller.RenderOutputWriter;
 import com.k8stoc4.controller.provider.KubeApiServerInputProvider;
 import com.k8stoc4.controller.writer.FileWriter;
 import com.k8stoc4.controller.writer.SystemOutWriter;
-import com.k8stoc4.render.C4DslRenderer;
 import io.fabric8.kubernetes.api.model.events.v1.Event;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
@@ -33,8 +32,7 @@ public class DiscoverCommand extends CommonCommand implements Runnable {
         initController(new KubeApiServerInputProvider(), Optional.empty());
         final RenderOutputWriter writer = output.isPresent() ? new FileWriter(output.get()) : new SystemOutWriter();
 
-        final C4DslRenderer.Output renderOutput = this.controller.execute();
-        writer.write(renderOutput);
+        this.controller.execute(writer);
         if (this.watch) {
             final EventWatcher watcher = new EventWatcher(this.controller, writer);
             while (true) {
@@ -55,8 +53,7 @@ public class DiscoverCommand extends CommonCommand implements Runnable {
         @Override
         public void eventReceived(Action action, Event resource) {
             if (action == Action.ADDED || action == Action.MODIFIED || action == Action.DELETED) {
-                final C4DslRenderer.Output renderOutput = this.controller.execute();
-                this.writer.write(renderOutput);
+                this.controller.execute(this.writer);
             }
         }
 
