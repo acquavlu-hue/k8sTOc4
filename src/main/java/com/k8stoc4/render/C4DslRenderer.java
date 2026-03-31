@@ -1,6 +1,7 @@
 package com.k8stoc4.render;
 
 import com.k8stoc4.model.C4Component;
+import com.k8stoc4.model.C4LabelGroup;
 import com.k8stoc4.model.C4Model;
 import com.k8stoc4.model.C4Namespace;
 import com.k8stoc4.model.C4Relationship;
@@ -112,6 +113,18 @@ public class C4DslRenderer {
                 sb.append(Constants.INDENT.repeat(2)).append("exclude * where ").append(kindExclusions.stream().map(it -> "kind is " + it.toLowerCase(Locale.ENGLISH)).collect(Collectors.joining(" or "))).append("\n");
             }
             sb.append(Constants.INDENT.repeat(1)).append("}\n");
+            if (!namespace.getLabelGroups().isEmpty()) {
+                sb.append(Constants.INDENT.repeat(1)).append("view ").append(namespace.getName()).append("-labelgroups {\n");
+                sb.append(Constants.INDENT.repeat(2)).append("title 'Namespaces / ").append(namespace.getName()).append(" / LabelGroups'\n");
+                sb.append(Constants.INDENT.repeat(2)).append("include ").append(namespace.getName()).append(".* where kind is labelgroup\n");
+                sb.append(Constants.INDENT.repeat(1)).append("}\n");
+            }
+            for (final C4LabelGroup labelGroup : namespace.getLabelGroups()) {
+                sb.append(Constants.INDENT.repeat(1)).append("view of ").append(namespace.getName()).append(".").append(labelGroup.getName()).append(" {\n");
+                sb.append(Constants.INDENT.repeat(2)).append("title 'Namespaces / ").append(namespace.getName()).append(" / LabelGroups / ").append(labelGroup.getLabelValue()).append("'\n");
+                sb.append(Constants.INDENT.repeat(2)).append("include *\n");
+                sb.append(Constants.INDENT.repeat(1)).append("}\n");
+            }
         }
         sb.append("}\n");
         return sb.toString();
