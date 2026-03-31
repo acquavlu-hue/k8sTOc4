@@ -42,5 +42,6 @@ public final class K8sToC4Controller {
         groupByLabel.ifPresent(visitor::groupComponentsByLabel);
         final C4DslRenderer renderer = new C4DslRenderer();
         writer.write(renderer.render(visitor.getModel(), kindExclusions));
+        writer.copyExtraResources();
     }
 }

@@ -1,9 +1,11 @@
 package com.k8stoc4.controller.writer;
 
+import com.k8stoc4.common.ResourceCopier;
 import com.k8stoc4.controller.RenderOutputWriter;
 import com.k8stoc4.render.C4DslRenderer;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,6 +33,15 @@ public class FileWriter implements RenderOutputWriter {
             throw new FileWriteException("Failed to write output files", e);
         } catch (SecurityException e) {
             throw new FileWriteException("Failed to create output directory", e);
+        }
+    }
+
+    @Override
+    public void copyExtraResources() {
+        try {
+            ResourceCopier.copyResourceDirectory("images", Path.of(this.outputDir, "images"));
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 
