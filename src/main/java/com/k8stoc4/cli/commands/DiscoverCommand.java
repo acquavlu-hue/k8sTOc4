@@ -32,7 +32,7 @@ public class DiscoverCommand extends CommonCommand implements Runnable {
         initController(new KubeApiServerInputProvider(), Optional.empty());
         final RenderOutputWriter writer = output.isPresent() ? new FileWriter(output.get()) : new SystemOutWriter();
 
-        this.controller.execute(writer);
+        this.controller.execute(writer, true);
         if (this.watch) {
             final EventWatcher watcher = new EventWatcher(this.controller, writer);
             while (true) {
@@ -53,7 +53,7 @@ public class DiscoverCommand extends CommonCommand implements Runnable {
         @Override
         public void eventReceived(Action action, Event resource) {
             if (action == Action.ADDED || action == Action.MODIFIED || action == Action.DELETED) {
-                this.controller.execute(this.writer);
+                this.controller.execute(this.writer, false);
             }
         }
 

@@ -28,7 +28,7 @@ class K8sToC4ControllerTest {
         final String expectedModel = new BufferedReader(new InputStreamReader(Objects.requireNonNull(classloader.getResourceAsStream("controller/outputs/basic/model.c4")))).lines().collect(Collectors.joining("\n")) + "\n";
         final K8sToC4Controller pc = new K8sToC4Controller(new FileInputProvider(this.input), Optional.empty(), Optional.empty(), false, Set.of());
         final TestWriter writer = new TestWriter();
-        pc.execute(writer);
+        pc.execute(writer, false);
 
         assertEquals(expectedSpec, writer.output.getSpec());
         assertEquals(expectedModel, writer.output.getModel());

@@ -25,7 +25,10 @@ public final class K8sToC4Controller {
         this.kindExclusions = kindExclusions;
     }
 
-    public void execute(final RenderOutputWriter writer) {
+    public void execute(final RenderOutputWriter writer, final boolean init) {
+        if (init) {
+            writer.copyExtraResources();
+        }
         final List<HasMetadata> resources = this.resourceProvider.resources();
         final C4ModelBuilderVisitor.Builder visitorBuilder = new C4ModelBuilderVisitor.Builder();
         if (this.defaultNamespace.isPresent()) {
@@ -42,6 +45,5 @@ public final class K8sToC4Controller {
         groupByLabel.ifPresent(visitor::groupComponentsByLabel);
         final C4DslRenderer renderer = new C4DslRenderer();
         writer.write(renderer.render(visitor.getModel(), kindExclusions));
-        writer.copyExtraResources();
     }
 }
