@@ -7,79 +7,78 @@ specification {
     }
     element namespace {
         style {
-            icon /images/namespace.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/ns.svg
             opacity 25%
         }
     }
     element labelgroup
     element serviceaccount{
         style {
-            icon /images/serviceaccount.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/sa.svg
         }
     }
     element role{
         style {
-            icon /images/role.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/role.svg
         }
     }
     element rolebinding{
         style {
-            icon /images/rolebinding.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/rb.svg
         }
     }
     element configmap{
         style {
-            icon /images/configmap.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/cm.svg
         }
     }
     element secret{
         style {
-            icon /images/secret.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/secret.svg
         }
     }
     element persistentvolume{
         style {
-            icon /images/persistentvolume.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/pv.svg
         }
     }
     element persistentvolumeclaim{
         style {
-            icon /images/persistentvolumeclaim.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/pvc.svg
         }
     }
     element statefulset{
         style {
-            icon /images/statefulset.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/sts.svg
         }
     }
     element service{
         style {
-            icon /images/service.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/svc.svg
         }
     }
     element deployment{
         style {
-            icon /images/deployment.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/deploy.svg
         }
     }
     element ingress{
         style {
-            icon /images/ingress.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/ing.svg
         }
     }
     element horizontalpodautoscaler{
         style {
-            icon /images/horizontalpodautoscaler.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/hpa.svg
         }
     }
     element poddisruptionbudget{
         style {
-            icon /images/poddisruptionbudget.svg
         }
     }
     element daemonset{
         style {
-            icon /images/daemonset.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/ds.svg
         }
     }
     tag service2service

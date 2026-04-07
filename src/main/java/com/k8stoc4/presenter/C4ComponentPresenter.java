@@ -31,7 +31,7 @@ public final class C4ComponentPresenter {
             sb.append(Constants.INDENT.repeat(2)).append("'\n");
             sb.append(Constants.INDENT.repeat(2)).append("annotations '\n");
             for (final Map.Entry<String, String> annotation : component.getResource().getMetadata().getAnnotations().entrySet()) {
-                sb.append(Constants.INDENT.repeat(3)).append(annotation.getKey()).append(": ").append(annotation.getValue()).append('\n');
+                sb.append(Constants.INDENT.repeat(3)).append(annotation.getKey()).append(": ").append(annotation.getValue().replace("'", "\\'")).append('\n');
             }
             sb.append(Constants.INDENT.repeat(2)).append("'\n");
         }

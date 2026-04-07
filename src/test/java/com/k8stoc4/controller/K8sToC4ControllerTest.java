@@ -41,8 +41,5 @@ class K8sToC4ControllerTest {
         public void write(C4DslRenderer.Output output) {
             this.output = output;
         }
-
-        @Override
-        public void copyExtraResources() {}
     }
 }
