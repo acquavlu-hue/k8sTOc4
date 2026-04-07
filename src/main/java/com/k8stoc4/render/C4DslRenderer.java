@@ -65,7 +65,9 @@ public class C4DslRenderer {
         sb.append(Constants.INDENT.repeat(1)).append("}\n");
         sb.append(Constants.INDENT.repeat(1)).append("element namespace {\n");
         sb.append(Constants.INDENT.repeat(2)).append("style {\n");
-        sb.append(Constants.INDENT.repeat(3)).append("icon /images/namespace.svg\n");
+        if (ImageMapper.typeHasImage("namespace")) {
+            sb.append(Constants.INDENT.repeat(3)).append("icon ").append(ImageMapper.getImageUrlForType("namespace")).append("\n");
+        }
         sb.append(Constants.INDENT.repeat(3)).append("opacity 25%\n");
         sb.append(Constants.INDENT.repeat(2)).append("}\n");
         sb.append(Constants.INDENT.repeat(1)).append("}\n");
@@ -74,7 +76,9 @@ public class C4DslRenderer {
             if (!"namespace".equals(elementName)) {
                 sb.append(Constants.INDENT.repeat(1)).append("element ").append(elementName).append("{\n");
                 sb.append(Constants.INDENT.repeat(2)).append("style {\n");
-                sb.append(Constants.INDENT.repeat(3)).append("icon /images/").append(elementName).append(".svg\n");
+                if (ImageMapper.typeHasImage(elementName)) {
+                    sb.append(Constants.INDENT.repeat(3)).append("icon ").append(ImageMapper.getImageUrlForType(elementName)).append("\n");
+                }
                 sb.append(Constants.INDENT.repeat(2)).append("}\n");
                 sb.append(Constants.INDENT.repeat(1)).append("}\n");
             }

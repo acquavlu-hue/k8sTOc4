@@ -7,29 +7,29 @@ specification {
     }
     element namespace {
         style {
-            icon /images/namespace.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/ns.svg
             opacity 25%
         }
     }
     element labelgroup
     element deployment{
         style {
-            icon /images/deployment.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/deploy.svg
         }
     }
     element service{
         style {
-            icon /images/service.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/svc.svg
         }
     }
     element configmap{
         style {
-            icon /images/configmap.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/cm.svg
         }
     }
     element ingress{
         style {
-            icon /images/ingress.svg
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/ing.svg
         }
     }
     tag service2service
