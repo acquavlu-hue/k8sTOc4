@@ -32,6 +32,6 @@ public class ParseCommand extends CommonCommand implements Runnable {
     public void run() {
         initController(new FileInputProvider(input), defaultNs);
         final RenderOutputWriter writer = output.isPresent() ? new FileWriter(output.get()) : new SystemOutWriter();
-        this.controller.execute(writer, true);
+        this.controller.execute(writer);
     }
 }

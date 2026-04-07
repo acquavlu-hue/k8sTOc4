@@ -35,7 +35,7 @@ public class DiscoverCommand extends CommonCommand implements Runnable {
         initController(new KubeApiServerInputProvider(), Optional.empty());
         final RenderOutputWriter writer = output.isPresent() ? new FileWriter(output.get()) : new SystemOutWriter();
 
-        this.controller.execute(writer, true);
+        this.controller.execute(writer);
         if (this.watch) {
             while (true) {
                 try {
@@ -43,7 +43,7 @@ public class DiscoverCommand extends CommonCommand implements Runnable {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-                this.controller.execute(writer, false);
+                this.controller.execute(writer);
             }
         }
     }

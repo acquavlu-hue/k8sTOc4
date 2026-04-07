@@ -12,7 +12,4 @@ public class SystemOutWriter implements RenderOutputWriter {
         System.out.println(output.getModel());
         System.out.println(output.getView());
     }
-
-    @Override
-    public void copyExtraResources() {}
 }
