@@ -29,13 +29,7 @@ import io.fabric8.kubernetes.api.model.policy.v1.PodDisruptionBudget;
 import io.fabric8.kubernetes.api.model.storage.StorageClass;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -297,14 +291,16 @@ public final class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
 
     private void addServiceToServiceRelationships() {
         model.getNamespaces().values().forEach(namespace -> {
-            final Map<String, C4Component> servicesByFqdn =
+            final Map<String, C4Component> servicesByFqdn = new HashMap<>();
                 model.getComponentsByKind(namespace.getName(), "service")
-                    .stream()
-                    .collect(Collectors.toMap(
-                            s -> s.getName() + "." + s.getNamespace(),
-                            Function.identity()
-                        )
-                    );
+                        .forEach(s -> {
+                            String name = s.getName();
+                            String ns = s.getNamespace();
+                            servicesByFqdn.put(name + "." + ns, s);
+                            servicesByFqdn.put(name, s);
+                            servicesByFqdn.put(name + "." + ns + ".svc", s);
+                            servicesByFqdn.put(name + "." + ns + ".svc.cluster.local", s);
+                        });
             model.getComponentsByKind(namespace.getName(), "deployment").forEach(component -> {
                 final Deployment deployment = (Deployment) component.getResource();
                 deployment.getSpec()
