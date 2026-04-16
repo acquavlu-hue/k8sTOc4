@@ -1,73 +1,141 @@
-# k8sToC4 CLI
+# k8sToC4
 
-CLI tool to convert Kubernetes manifests into C4 diagrams using the LikeC4 DSL.
+`k8sToC4` is a Java CLI that reads Kubernetes manifests and produces C4-style output files (`spec.c4`, `model.c4`, `view.c4`) that can be used as a base for LikeC4 or Structurizr-style visualization workflows.
 
-Overview
-- The tool reads Kubernetes manifests (Deployment, Service, Ingress, ConfigMap, Secret, etc.), builds a C4 model, and outputs Structurizr DSL files (.c4).
-- Architecture is designed to be extensible via a Visitor pattern to support new Kubernetes resources.
-- Automatically maps resources to C4 components and establishes relationships such as:
-  - Service -> Pods (via selector)
-  - Ingress -> Service (HTTP routes)
-  - Pods -> ConfigMap (envFrom, valueFrom, volumes)
-  - Pods -> Secret (envFrom, valueFrom, volumes)
-  - Pods -> PersistentVolumeClaim (volumes)
-- Outputs DSL files suitable for Structurizr visualization.
+The repository now includes:
 
-Supported Kubernetes resources
-- Deployment
-- StatefulSet
-- Service
-- Ingress (v1, v1beta1, extensions)
-- ConfigMap
-- Secret
-- PersistentVolumeClaim
-- Other generic resources (fallback)
+- product-style documentation in [`docs/`](docs/)
+- a simple static project site in [`site/`](site/)
+- ready-to-run manifest examples in [`examples/`](examples/)
 
-Prerequisites
-- Java 21 or newer
+## What It Does
+
+The CLI parses Kubernetes resources and maps them into a C4-oriented model. Today the project already supports relationships such as:
+
+- `Service -> Pods` via selectors
+- `Ingress -> Service` via HTTP routes
+- `Pods -> ConfigMap`
+- `Pods -> Secret`
+- `Pods -> PersistentVolumeClaim`
+
+Supported resource families include:
+
+- `Deployment`
+- `StatefulSet`
+- `Service`
+- `Ingress`
+- `ConfigMap`
+- `Secret`
+- `PersistentVolumeClaim`
+- generic fallback resources
+
+## Requirements
+
+- Java 17+
 - Maven 3.x
 
-Build
-- mvn -B -DskipTests=false package
-- The resulting executable JAR is generated under target/, e.g. target/k8stoc4-cli-1.0-SNAPSHOT.jar
+## Build
 
-Usage
-- Base command: java -jar target/k8stoc4-cli-1.0-SNAPSHOT.jar parse -i <input-file.yaml>
-- Options:
-  * -i, --input: Kubernetes YAML input file (required)
-  * -o, --output: Output directory for .c4 files (optional)
+```bash
+mvn -B -DskipTests=false package
+```
 
-Examples
-- Output to stdout:
-  java -jar target/k8stoc4-cli-1.0-SNAPSHOT.jar parse -i src/main/resources/microservice.yaml
-- Output to file:
-  java -jar target/k8stoc4-cli-1.0-SNAPSHOT.jar parse -i src/main/resources/complex.yaml -o ./output
+The main artifact is generated in `target/`, for example:
 
-This will generate:
-- output/spec.c4: C4 specifications
-- output/model.c4: C4 model with namespace, components, and relations
+```bash
+target/k8stoc4-cli-1.0-SNAPSHOT.jar
+```
 
-Architecture (high level)
-- The project follows a modular structure under src/main/java:
-  - com.k8stoc4.cli: Entry point and commands (Main.java, ParseCommand.java)
-  - com.k8stoc4.model: C4Model, C4Namespace, C4Component, C4Relationship, Constants
-  - com.k8stoc4.visitor: Visitors to build the model (C4ModelBuilderVisitor, KubernetesResourceVisitor, etc.)
-  - com.k8stoc4.render: C4DslRenderer for Structurizr DSL output
-- Core ideas: Parser (Fabric8 Kubernetes Client), DSL template rendering (Mustache), and a Visitor-based model builder.
+The build also creates an executable wrapper named:
 
-Dependencies
-- Picocli 4.7.7: CLI framework
-- Fabric8 Kubernetes Client 7.4.0: Kubernetes resource parsing
-- Mustache 0.9.10: Template engine for DSL
-- Lombok 1.18.42: Boilerplate reduction
-- Logback 1.5.20: Logging
+```bash
+target/k8sToC4
+```
 
-Notes
-- The CLI jar is produced by the Maven Shade plugin; entry point is com.k8stoc4.cli.Main.
-- Version in this README refers to the current release artifact name: k8stoc4-cli-1.0-SNAPSHOT.jar
+## Usage
 
-Contributing
-- See CONTRIBUTING.md for details on forking, branching, testing, and submitting PRs.
+Parse a local manifest file:
 
-License
-- Apache License 2.0. See LICENSE for details.
+```bash
+java -jar target/k8stoc4-cli-1.0-SNAPSHOT.jar parse -i examples/manifests/hello-platform.yaml -o ./output/hello-platform
+```
+
+Parse and group components by label:
+
+```bash
+java -jar target/k8stoc4-cli-1.0-SNAPSHOT.jar parse \
+  -i examples/manifests/ecommerce-observability.yaml \
+  -o ./output/ecommerce \
+  -g app.kubernetes.io/part-of
+```
+
+Discover from a live cluster:
+
+```bash
+java -jar target/k8stoc4-cli-1.0-SNAPSHOT.jar discover -o ./output/live-cluster
+```
+
+Watch mode:
+
+```bash
+java -jar target/k8stoc4-cli-1.0-SNAPSHOT.jar discover -o ./output/live-cluster -w -r 30
+```
+
+## Generated Files
+
+When `-o` is provided, the CLI writes:
+
+- `spec.c4`
+- `model.c4`
+- `view.c4`
+
+Without `-o`, output is printed to stdout through the console writer path.
+
+## Documentation
+
+Start here:
+
+- [Documentation index](docs/README.md)
+- [Getting started](docs/getting-started.md)
+- [Examples guide](docs/examples.md)
+- [Architecture notes](docs/architecture.md)
+
+## Project Site
+
+Open the static landing page locally:
+
+- [Project site](site/index.html)
+
+It contains a polished overview of the tool, placeholder sections for generated artifacts, and shortcuts to the example manifests.
+
+## Example Manifests
+
+The repository includes starter examples designed to exercise the current CLI behavior:
+
+- [Examples overview](examples/README.md)
+- [Hello platform](examples/manifests/hello-platform.yaml)
+- [E-commerce with observability](examples/manifests/ecommerce-observability.yaml)
+- [Multi-namespace gateway](examples/manifests/multi-namespace-gateway.yaml)
+
+## Code Structure
+
+- `src/main/java/com/k8stoc4/cli`: CLI entrypoints and subcommands
+- `src/main/java/com/k8stoc4/controller`: orchestration and input/output handling
+- `src/main/java/com/k8stoc4/visitor`: model-building logic
+- `src/main/java/com/k8stoc4/model`: internal C4 domain model
+- `src/main/java/com/k8stoc4/render`: `.c4` rendering
+- `src/test`: unit and integration-style tests
+
+## Notes
+
+- The codebase currently compiles for Java 17, even though some older docs mentioned Java 21.
+- The static site is intentionally framework-free so it can be previewed by simply opening the HTML file.
+- The documentation contains placeholder sections for screenshots and rendered diagrams, ready to be replaced with real assets once publishing starts.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE).
