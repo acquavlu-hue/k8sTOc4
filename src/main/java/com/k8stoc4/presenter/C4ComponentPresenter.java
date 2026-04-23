@@ -24,16 +24,20 @@ public final class C4ComponentPresenter {
             sb.append(Constants.INDENT.repeat(2)).append("'\n");
         }
         if (component.getResource() != null) {
-            sb.append(Constants.INDENT.repeat(2)).append("labels '\n");
-            for (final Map.Entry<String, String> label : component.getResource().getMetadata().getLabels().entrySet()) {
-                sb.append(Constants.INDENT.repeat(3)).append(label.getKey()).append(": ").append(label.getValue()).append('\n');
+            if (component.getResource().getMetadata().getLabels() != null) {
+                sb.append(Constants.INDENT.repeat(2)).append("labels '\n");
+                for (final Map.Entry<String, String> label : component.getResource().getMetadata().getLabels().entrySet()) {
+                    sb.append(Constants.INDENT.repeat(3)).append(label.getKey()).append(": ").append(label.getValue()).append('\n');
+                }
+                sb.append(Constants.INDENT.repeat(2)).append("'\n");
             }
-            sb.append(Constants.INDENT.repeat(2)).append("'\n");
-            sb.append(Constants.INDENT.repeat(2)).append("annotations '\n");
-            for (final Map.Entry<String, String> annotation : component.getResource().getMetadata().getAnnotations().entrySet()) {
-                sb.append(Constants.INDENT.repeat(3)).append(annotation.getKey()).append(": ").append(annotation.getValue().replace("'", "\\'")).append('\n');
+            if (component.getResource().getMetadata().getAnnotations() != null) {
+                sb.append(Constants.INDENT.repeat(2)).append("annotations '\n");
+                for (final Map.Entry<String, String> annotation : component.getResource().getMetadata().getAnnotations().entrySet()) {
+                    sb.append(Constants.INDENT.repeat(3)).append(annotation.getKey()).append(": ").append(annotation.getValue().replace("'", "\\'")).append('\n');
+                }
+                sb.append(Constants.INDENT.repeat(2)).append("'\n");
             }
-            sb.append(Constants.INDENT.repeat(2)).append("'\n");
         }
         component.getAdditionalMetadata().forEach((key, value) -> {
             sb.append(Constants.INDENT.repeat(2)).append(key).append(" '\n");
