@@ -4,7 +4,7 @@ metadata:
   name: "sample-pod"
   namespace: default
   labels: {}
-  annotations: {}
+  annotations:
 spec:
   containers:
     - name: sample-pod

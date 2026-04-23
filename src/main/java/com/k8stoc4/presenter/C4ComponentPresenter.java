@@ -3,7 +3,9 @@ package com.k8stoc4.presenter;
 import com.k8stoc4.model.C4Component;
 import com.k8stoc4.model.Constants;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public final class C4ComponentPresenter {
@@ -25,12 +27,12 @@ public final class C4ComponentPresenter {
         }
         if (component.getResource() != null) {
             sb.append(Constants.INDENT.repeat(2)).append("labels '\n");
-            for (final Map.Entry<String, String> label : component.getResource().getMetadata().getLabels().entrySet()) {
+            for (final Map.Entry<String, String> label : Optional.ofNullable(component.getResource().getMetadata().getLabels()).orElse(Collections.emptyMap()).entrySet()) {
                 sb.append(Constants.INDENT.repeat(3)).append(label.getKey()).append(": ").append(label.getValue()).append('\n');
             }
             sb.append(Constants.INDENT.repeat(2)).append("'\n");
             sb.append(Constants.INDENT.repeat(2)).append("annotations '\n");
-            for (final Map.Entry<String, String> annotation : component.getResource().getMetadata().getAnnotations().entrySet()) {
+            for (final Map.Entry<String, String> annotation : Optional.ofNullable(component.getResource().getMetadata().getAnnotations()).orElse(Collections.emptyMap()).entrySet()) {
                 sb.append(Constants.INDENT.repeat(3)).append(annotation.getKey()).append(": ").append(annotation.getValue().replace("'", "\\'")).append('\n');
             }
             sb.append(Constants.INDENT.repeat(2)).append("'\n");
