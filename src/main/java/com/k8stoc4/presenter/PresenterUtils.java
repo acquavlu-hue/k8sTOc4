@@ -17,6 +17,6 @@ public final class PresenterUtils {
     }
 
     private static String sanitize(final String s) {
-        return s.replace(".", "-").replace("/", "-");
+        return s.replace(".", "-").replace("/", "-").replace(":", "-");
     }
 }
