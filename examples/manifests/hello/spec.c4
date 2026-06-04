@@ -1,0 +1,52 @@
+specification {
+    element missing {
+        style {
+            color red
+            icon https://icons.getbootstrap.com/assets/icons/question-square.svg
+        }
+    }
+    element namespace {
+        style {
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/ns.svg
+            opacity 25%
+        }
+    }
+    element labelgroup
+    element configmap{
+        style {
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/cm.svg
+        }
+    }
+    element secret{
+        style {
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/secret.svg
+        }
+    }
+    element persistentvolumeclaim{
+        style {
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/pvc.svg
+        }
+    }
+    element statefulset{
+        style {
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/sts.svg
+        }
+    }
+    element service{
+        style {
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/svc.svg
+        }
+    }
+    element deployment{
+        style {
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/deploy.svg
+        }
+    }
+    element ingress{
+        style {
+            icon https://github.com/kubernetes/community/raw/refs/heads/main/icons/svg/resources/labeled/ing.svg
+        }
+    }
+    tag service2service
+    tag ExternalName
+}

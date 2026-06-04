@@ -1,0 +1,206 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hello-platform
+  labels:
+    app.kubernetes.io/name: hello-platform
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: hello-platform
+  labels:
+    app.kubernetes.io/part-of: hello-platform
+data:
+  API_BASE_URL: "https://hello.example.com/api"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: api-secrets
+  namespace: hello-platform
+  labels:
+    app.kubernetes.io/part-of: hello-platform
+type: Opaque
+stringData:
+  DATABASE_URL: "postgres://hello:hello@postgres:5432/hello"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+  namespace: hello-platform
+  labels:
+    app.kubernetes.io/part-of: hello-platform
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: hello-platform
+  labels:
+    app: postgres
+    app.kubernetes.io/part-of: data
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+        app.kubernetes.io/part-of: data
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          env:
+            - name: POSTGRES_DB
+              value: hello
+            - name: POSTGRES_USER
+              value: hello
+            - name: POSTGRES_PASSWORD
+              value: hello
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: hello-platform
+  labels:
+    app.kubernetes.io/part-of: data
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-api
+  namespace: hello-platform
+  labels:
+    app: hello-api
+    app.kubernetes.io/part-of: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-api
+  template:
+    metadata:
+      labels:
+        app: hello-api
+        app.kubernetes.io/part-of: backend
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/example/hello-api:1.0.0
+          envFrom:
+            - secretRef:
+                name: api-secrets
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-api
+  namespace: hello-platform
+  labels:
+    app.kubernetes.io/part-of: backend
+spec:
+  selector:
+    app: hello-api
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-web
+  namespace: hello-platform
+  labels:
+    app: hello-web
+    app.kubernetes.io/part-of: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-web
+  template:
+    metadata:
+      labels:
+        app: hello-web
+        app.kubernetes.io/part-of: frontend
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/example/hello-web:1.0.0
+          envFrom:
+            - configMapRef:
+                name: frontend-config
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-web
+  namespace: hello-platform
+  labels:
+    app.kubernetes.io/part-of: frontend
+spec:
+  selector:
+    app: hello-web
+  ports:
+    - port: 80
+      targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-platform
+  namespace: hello-platform
+  labels:
+    app.kubernetes.io/part-of: frontend
+spec:
+  rules:
+    - host: hello.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hello-web
+                port:
+                  number: 80
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: hello-api
+                port:
+                  number: 80

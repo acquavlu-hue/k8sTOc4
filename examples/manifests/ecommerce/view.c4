@@ -1,0 +1,26 @@
+global {
+    style external_service element.tag = #ExternalName {
+        color indigo
+    }
+}
+views {
+    global style external_service
+    view namespaces {
+        title 'Overviews / Namespaces'
+        include *
+            where kind is namespace
+    }
+    view of commerce {
+        title 'Namespaces / commerce'
+        include commerce.**, commerce
+    }
+    view of observability {
+        title 'Namespaces / observability'
+        include observability.**, observability
+    }
+    view of commerce {
+        title 'overall'
+        include commerce.**, commerce
+        include observability.**, observability
+    }
+}

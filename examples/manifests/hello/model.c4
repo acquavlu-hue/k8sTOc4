@@ -1,0 +1,175 @@
+model {
+    // Cluster-scoped resources
+    namespace namespace_hello-platform 'hello-platform' {
+        technology "Namespace"
+        description ""
+        metadata {
+            labels '
+                app.kubernetes.io/name: hello-platform
+            '
+            annotations '
+            '
+        }
+    }
+    // Cross-scope relationships
+    // Total model relationships: 0
+    namespace hello-platform {
+        configmap configmap_frontend-config 'frontend-config' {
+            technology "ConfigMap"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: hello-platform
+                '
+                annotations '
+                '
+            }
+        }
+        secret secret_api-secrets 'api-secrets' {
+            technology "Secret"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: hello-platform
+                '
+                annotations '
+                '
+            }
+        }
+        persistentvolumeclaim persistentvolumeclaim_postgres-data 'postgres-data' {
+            technology "PersistentVolumeClaim"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: hello-platform
+                '
+                annotations '
+                '
+            }
+        }
+        statefulset statefulset_postgres 'postgres' {
+            technology "StatefulSet"
+            description ""
+            metadata {
+                containerImages '
+                    postgres: postgres:16
+                '
+                labels '
+                    app: postgres
+                    app.kubernetes.io/part-of: data
+                '
+                annotations '
+                '
+            }
+        }
+        service service_postgres 'postgres' {
+            technology "Service"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: data
+                '
+                annotations '
+                '
+            }
+        }
+        deployment deployment_hello-api 'hello-api' {
+            technology "Deployment"
+            description ""
+            metadata {
+                containerImages '
+                    api: ghcr.io/example/hello-api:1.0.0
+                '
+                labels '
+                    app: hello-api
+                    app.kubernetes.io/part-of: backend
+                '
+                annotations '
+                '
+            }
+        }
+        service service_hello-api 'hello-api' {
+            technology "Service"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: backend
+                '
+                annotations '
+                '
+            }
+        }
+        deployment deployment_hello-web 'hello-web' {
+            technology "Deployment"
+            description ""
+            metadata {
+                containerImages '
+                    web: ghcr.io/example/hello-web:1.0.0
+                '
+                labels '
+                    app: hello-web
+                    app.kubernetes.io/part-of: frontend
+                '
+                annotations '
+                '
+            }
+        }
+        service service_hello-web 'hello-web' {
+            technology "Service"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: frontend
+                '
+                annotations '
+                '
+            }
+        }
+        ingress ingress_hello-platform 'hello-platform' {
+            technology "Ingress"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: frontend
+                '
+                annotations '
+                '
+                hosts '
+                    hello.example.com
+                '
+            }
+        }
+        hello-platform.statefulset_postgres -> hello-platform.persistentvolumeclaim_postgres-data {
+            description 'mount'
+            technology 'volume'
+        }
+        hello-platform.deployment_hello-api -> hello-platform.secret_api-secrets {
+            description 'mount'
+            technology 'secret'
+        }
+        hello-platform.deployment_hello-web -> hello-platform.configmap_frontend-config {
+            description 'mount'
+            technology 'configmap'
+        }
+        hello-platform.ingress_hello-platform -> hello-platform.service_hello-web {
+            description 'routes HTTP traffic'
+            technology 'HTTP'
+        }
+        hello-platform.ingress_hello-platform -> hello-platform.service_hello-api {
+            description 'routes HTTP traffic'
+            technology 'HTTP'
+        }
+        hello-platform.service_postgres -> hello-platform.statefulset_postgres {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        hello-platform.service_hello-api -> hello-platform.deployment_hello-api {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        hello-platform.service_hello-web -> hello-platform.deployment_hello-web {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+    }
+}

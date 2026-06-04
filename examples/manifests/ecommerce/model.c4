@@ -1,0 +1,283 @@
+model {
+    // Cluster-scoped resources
+    namespace namespace_commerce 'commerce' {
+        technology "Namespace"
+        description ""
+        metadata {
+            labels '
+                app.kubernetes.io/name: commerce
+            '
+            annotations '
+            '
+        }
+    }
+    namespace namespace_observability 'observability' {
+        technology "Namespace"
+        description ""
+        metadata {
+            labels '
+                app.kubernetes.io/name: observability
+            '
+            annotations '
+            '
+        }
+    }
+    // Cross-scope relationships
+    // Total model relationships: 0
+    namespace commerce {
+        configmap configmap_storefront-config 'storefront-config' {
+            technology "ConfigMap"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: storefront
+                '
+                annotations '
+                '
+            }
+        }
+        secret secret_payment-secrets 'payment-secrets' {
+            technology "Secret"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: payments
+                '
+                annotations '
+                '
+            }
+        }
+        deployment deployment_storefront 'storefront' {
+            technology "Deployment"
+            description ""
+            metadata {
+                containerImages '
+                    storefront: ghcr.io/example/storefront:2.4.0
+                '
+                labels '
+                    app: storefront
+                    app.kubernetes.io/part-of: storefront
+                '
+                annotations '
+                '
+            }
+        }
+        service service_storefront 'storefront' {
+            technology "Service"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: storefront
+                '
+                annotations '
+                '
+            }
+        }
+        deployment deployment_checkout 'checkout' {
+            technology "Deployment"
+            description ""
+            metadata {
+                containerImages '
+                    checkout: ghcr.io/example/checkout:1.9.0
+                '
+                labels '
+                    app: checkout
+                    app.kubernetes.io/part-of: checkout
+                '
+                annotations '
+                '
+            }
+        }
+        service service_checkout 'checkout' {
+            technology "Service"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: checkout
+                '
+                annotations '
+                '
+            }
+        }
+        deployment deployment_payments 'payments' {
+            technology "Deployment"
+            description ""
+            metadata {
+                containerImages '
+                    payments: ghcr.io/example/payments:3.1.0
+                '
+                labels '
+                    app: payments
+                    app.kubernetes.io/part-of: payments
+                '
+                annotations '
+                '
+            }
+        }
+        service service_payments 'payments' {
+            technology "Service"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: payments
+                '
+                annotations '
+                '
+            }
+        }
+        deployment deployment_cart-cache 'cart-cache' {
+            technology "Deployment"
+            description ""
+            metadata {
+                containerImages '
+                    redis: redis:7
+                '
+                labels '
+                    app: cart-cache
+                    app.kubernetes.io/part-of: checkout
+                '
+                annotations '
+                '
+            }
+        }
+        service service_cart-cache 'cart-cache' {
+            technology "Service"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: checkout
+                '
+                annotations '
+                '
+            }
+        }
+        ingress ingress_commerce 'commerce' {
+            technology "Ingress"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: storefront
+                '
+                annotations '
+                '
+                hosts '
+                    shop.example.com
+                '
+            }
+        }
+        commerce.deployment_storefront -> commerce.configmap_storefront-config {
+            description 'mount'
+            technology 'configmap'
+        }
+        commerce.deployment_payments -> commerce.secret_payment-secrets {
+            description 'mount'
+            technology 'secret'
+        }
+        commerce.ingress_commerce -> commerce.service_storefront {
+            description 'routes HTTP traffic'
+            technology 'HTTP'
+        }
+        commerce.ingress_commerce -> commerce.service_checkout {
+            description 'routes HTTP traffic'
+            technology 'HTTP'
+        }
+        commerce.service_storefront -> commerce.deployment_storefront {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        commerce.service_checkout -> commerce.deployment_checkout {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        commerce.service_payments -> commerce.deployment_payments {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        commerce.service_cart-cache -> commerce.deployment_cart-cache {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        commerce.deployment_checkout -> commerce.service_payments {
+            #service2service
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+    }
+    namespace observability {
+        configmap configmap_prometheus-config 'prometheus-config' {
+            technology "ConfigMap"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: observability
+                '
+                annotations '
+                '
+            }
+        }
+        deployment deployment_prometheus 'prometheus' {
+            technology "Deployment"
+            description ""
+            metadata {
+                containerImages '
+                    prometheus: prom/prometheus:v2.52.0
+                '
+                labels '
+                    app: prometheus
+                    app.kubernetes.io/part-of: observability
+                '
+                annotations '
+                '
+            }
+        }
+        service service_prometheus 'prometheus' {
+            technology "Service"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: observability
+                '
+                annotations '
+                '
+            }
+        }
+        deployment deployment_grafana 'grafana' {
+            technology "Deployment"
+            description ""
+            metadata {
+                containerImages '
+                    grafana: grafana/grafana:11.0.0
+                '
+                labels '
+                    app: grafana
+                    app.kubernetes.io/part-of: observability
+                '
+                annotations '
+                '
+            }
+        }
+        service service_grafana 'grafana' {
+            technology "Service"
+            description ""
+            metadata {
+                labels '
+                    app.kubernetes.io/part-of: observability
+                '
+                annotations '
+                '
+            }
+        }
+        observability.deployment_prometheus -> observability.configmap_prometheus-config {
+            description 'mount'
+            technology 'volume'
+        }
+        observability.service_prometheus -> observability.deployment_prometheus {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        observability.service_grafana -> observability.deployment_grafana {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+    }
+}

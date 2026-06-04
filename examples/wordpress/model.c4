@@ -1,0 +1,113 @@
+model {
+    namespace default {
+        service service_wordpress-mysql 'wordpress-mysql' {
+            technology "Service"
+            description ""
+            metadata {
+                labels '
+                    app: wordpress
+                '
+                annotations '
+                '
+            }
+        }
+        persistentvolumeclaim persistentvolumeclaim_mysql-pv-claim 'mysql-pv-claim' {
+            technology "PersistentVolumeClaim"
+            description ""
+            metadata {
+                labels '
+                    app: wordpress
+                '
+                annotations '
+                '
+            }
+        }
+        deployment deployment_wordpress-mysql 'wordpress-mysql' {
+            technology "Deployment"
+            description ""
+            metadata {
+                containerImages '
+                    mysql: mysql:8.0
+                '
+                labels '
+                    app: wordpress
+                    tier: mysql
+                '
+                annotations '
+                '
+            }
+        }
+        secret secret_mysql-pass 'mysql-pass' {
+            technology "Secret"
+            description ""
+            metadata {
+                labels '
+                    app: wordpress
+                '
+                annotations '
+                '
+            }
+        }
+        service service_wordpress 'wordpress' {
+            technology "Service"
+            description ""
+            metadata {
+                labels '
+                    app: wordpress
+                '
+                annotations '
+                '
+            }
+        }
+        persistentvolumeclaim persistentvolumeclaim_wp-pv-claim 'wp-pv-claim' {
+            technology "PersistentVolumeClaim"
+            description ""
+            metadata {
+                labels '
+                    app: wordpress
+                '
+                annotations '
+                '
+            }
+        }
+        deployment deployment_wordpress 'wordpress' {
+            technology "Deployment"
+            description ""
+            metadata {
+                containerImages '
+                    wordpress: wordpress:6.2.1-apache
+                '
+                labels '
+                    app: wordpress
+                    tier: frontend
+                '
+                annotations '
+                '
+            }
+        }
+        default.deployment_wordpress-mysql -> default.secret_mysql-pass {
+            description 'mount'
+            technology 'secret'
+        }
+        default.deployment_wordpress-mysql -> default.persistentvolumeclaim_mysql-pv-claim {
+            description 'mount'
+            technology 'volume'
+        }
+        default.deployment_wordpress -> default.secret_mysql-pass {
+            description 'mount'
+            technology 'secret'
+        }
+        default.deployment_wordpress -> default.persistentvolumeclaim_wp-pv-claim {
+            description 'mount'
+            technology 'volume'
+        }
+        default.service_wordpress-mysql -> default.deployment_wordpress-mysql {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+        default.service_wordpress -> default.deployment_wordpress {
+            description 'routes to'
+            technology 'TCP/HTTP'
+        }
+    }
+}

@@ -1,0 +1,17 @@
+global {
+    style external_service element.tag = #ExternalName {
+        color indigo
+    }
+}
+views {
+    global style external_service
+    view namespaces {
+        title 'Overviews / Namespaces'
+        include *
+            where kind is namespace
+    }
+    view of hello-platform {
+        title 'Namespaces / hello-platform'
+        include hello-platform.**
+    }
+}
