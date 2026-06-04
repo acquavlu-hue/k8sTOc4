@@ -1,136 +1,181 @@
 # k8sToC4
 
-`k8sToC4` is a Java CLI that reads Kubernetes manifests and produces C4-style output files (`spec.c4`, `model.c4`, `view.c4`) that can be used as a base for LikeC4 or Structurizr-style visualization workflows.
+`k8sToC4` is a Java CLI that converts Kubernetes resources into C4-style `.c4` files. 
+It can parse local YAML manifests or discover resources from the current Kubernetes context, 
+then generate files that can be used as a starting point for LikeC4 visualization workflows.
 
-The repository now includes:
+## What It Generates
 
-- product-style documentation in [`docs/`](docs/)
-- a simple static project site in [`site/`](site/)
-- ready-to-run manifest examples in [`examples/`](examples/)
+When an output directory is provided, the CLI writes:
 
-## What It Does
+- `spec.c4`: element specifications and styles
+- `model.c4`: namespaces, Kubernetes resources, metadata and relationships
+- `view.c4`: generated views for namespaces, nodes and label groups
 
-The CLI parses Kubernetes resources and maps them into a C4-oriented model. Today the project already supports relationships such as:
+Without `-o` / `--output`, the generated content is printed to stdout.
 
-- `Service -> Pods` via selectors
-- `Ingress -> Service` via HTTP routes
-- `Pods -> ConfigMap`
-- `Pods -> Secret`
-- `Pods -> PersistentVolumeClaim`
+## Screenshot Placeholders
+
+Add the real screenshots after rendering the generated `.c4` files.
+
+
+### Namespace Overview
+
+![Namespace overview](docs/screenshots/namespace-overview.png)
+
+### Overall View
+
+![Overall view](docs/screenshots/hello.png)
+
+## Supported Mappings
+
+The model builder detects common Kubernetes relationships, including:
+
+- `Service -> Deployment/StatefulSet/Pod owner` through selectors
+- `Ingress -> Service` through HTTP backend routes
+- workload `-> ConfigMap` through `envFrom`, `env` and volume references
+- workload `-> Secret` through environment and volume references
+- workload `-> PersistentVolumeClaim` through volume references
+- `PersistentVolume -> PersistentVolumeClaim` through claim binding
 
 Supported resource families include:
 
+- `Namespace`
 - `Deployment`
 - `StatefulSet`
+- `DaemonSet`
 - `Service`
 - `Ingress`
 - `ConfigMap`
 - `Secret`
+- `PersistentVolume`
 - `PersistentVolumeClaim`
-- generic fallback resources
+- cluster and generic fallback resources
 
 ## Requirements
 
-- Java 17+
+- Java 21+
 - Maven 3.x
+- Optional: access to a Kubernetes cluster for `discover`
 
 ## Build
 
 ```bash
-mvn -B -DskipTests=false package
+mvn -B package
 ```
 
-The main artifact is generated in `target/`, for example:
+The build creates:
 
 ```bash
-target/k8stoc4-cli-1.0-SNAPSHOT.jar
-```
-
-The build also creates an executable wrapper named:
-
-```bash
+target/k8stoc4-cli-1.0.jar
 target/k8sToC4
 ```
 
 ## Usage
 
-Parse a local manifest file:
+Parse a local manifest:
 
 ```bash
-java -jar target/k8stoc4-cli-1.0-SNAPSHOT.jar parse -i examples/manifests/hello-platform.yaml -o ./output/hello-platform
+target/k8sToC4 parse \
+  -i examples/manifests/hello-platform.yaml \
+  -o output/hello-platform
 ```
 
-Parse and group components by label:
+Parse and group components by a Kubernetes label:
 
 ```bash
-java -jar target/k8stoc4-cli-1.0-SNAPSHOT.jar parse \
+target/k8sToC4 parse \
   -i examples/manifests/ecommerce-observability.yaml \
-  -o ./output/ecommerce \
+  -o output/ecommerce \
   -g app.kubernetes.io/part-of
 ```
 
-Discover from a live cluster:
+Force a namespace for manifests that omit one:
 
 ```bash
-java -jar target/k8stoc4-cli-1.0-SNAPSHOT.jar discover -o ./output/live-cluster
+target/k8sToC4 parse \
+  -i examples/manifests/hello-platform.yaml \
+  -o output/hello-platform-dev \
+  -n dev
 ```
 
-Watch mode:
+Create placeholder entities for referenced resources that are missing from the input:
 
 ```bash
-java -jar target/k8stoc4-cli-1.0-SNAPSHOT.jar discover -o ./output/live-cluster -w -r 30
+target/k8sToC4 parse \
+  -i examples/manifests/hello-platform.yaml \
+  -o output/hello-platform-complete \
+  --rewrite-missing
 ```
 
-## Generated Files
+Exclude noisy resource kinds from generated views:
 
-When `-o` is provided, the CLI writes:
+```bash
+target/k8sToC4 parse \
+  -i examples/manifests/ecommerce-observability.yaml \
+  -o output/ecommerce-filtered \
+  -e configmap -e secret
+```
 
-- `spec.c4`
-- `model.c4`
-- `view.c4`
+Run from the shaded JAR instead of the executable wrapper:
 
-Without `-o`, output is printed to stdout through the console writer path.
+```bash
+java -jar target/k8stoc4-cli-1.0.jar parse \
+  -i examples/manifests/wordpress-stack.yaml \
+  -o output/wordpress
+```
 
-## Documentation
+Discover resources from the active Kubernetes context:
 
-Start here:
+```bash
+target/k8sToC4 discover -o output/live-cluster
+```
 
-- [Documentation index](docs/README.md)
-- [Getting started](docs/getting-started.md)
-- [Examples guide](docs/examples.md)
-- [Architecture notes](docs/architecture.md)
+Discover continuously:
 
-## Project Site
+```bash
+target/k8sToC4 discover -o output/live-cluster -w -r 30
+```
 
-Open the static landing page locally:
+## Examples
 
-- [Project site](site/index.html)
+Example manifests live in [examples](examples/README.md):
 
-It contains a polished overview of the tool, placeholder sections for generated artifacts, and shortcuts to the example manifests.
+- [hello-platform.yaml](examples/manifests/hello-platform.yaml): small app with frontend, API, database, ConfigMap, Secret and Ingress
+- [ecommerce-observability.yaml](examples/manifests/ecommerce-observability.yaml): multi-namespace platform with label grouping and observability components
+- [wordpress-stack.yaml](examples/manifests/wordpress-stack.yaml): WordPress and MySQL with services, secrets and PVCs
 
-## Example Manifests
+After building the CLI, try:
 
-The repository includes starter examples designed to exercise the current CLI behavior:
+```bash
+target/k8sToC4 parse -i examples/manifests/ecommerce-observability.yaml -o output/ecommerce -g app.kubernetes.io/part-of
+```
 
-- [Examples overview](examples/README.md)
-- [Hello platform](examples/manifests/hello-platform.yaml)
-- [E-commerce with observability](examples/manifests/ecommerce-observability.yaml)
-- [Multi-namespace gateway](examples/manifests/multi-namespace-gateway.yaml)
+Then load the generated `spec.c4`, `model.c4` and `view.c4` in your C4 visualization workflow.
 
 ## Code Structure
 
-- `src/main/java/com/k8stoc4/cli`: CLI entrypoints and subcommands
+- `src/main/java/com/k8stoc4/cli`: CLI entrypoint and subcommands
 - `src/main/java/com/k8stoc4/controller`: orchestration and input/output handling
-- `src/main/java/com/k8stoc4/visitor`: model-building logic
+- `src/main/java/com/k8stoc4/visitor`: Kubernetes resource traversal and model-building logic
 - `src/main/java/com/k8stoc4/model`: internal C4 domain model
-- `src/main/java/com/k8stoc4/render`: `.c4` rendering
-- `src/test`: unit and integration-style tests
+- `src/main/java/com/k8stoc4/presenter`: conversion from model objects to C4 DSL snippets
+- `src/main/java/com/k8stoc4/render`: final `.c4` rendering
+- `src/test`: focused unit and integration-style tests
 
-## Notes
+## Development
 
-- The codebase currently compiles for Java 17, even though some older docs mentioned Java 21.
-- The static site is intentionally framework-free so it can be previewed by simply opening the HTML file.
-- The documentation contains placeholder sections for screenshots and rendered diagrams, ready to be replaced with real assets once publishing starts.
+Run the test suite:
+
+```bash
+mvn test
+```
+
+Build the distributable artifacts:
+
+```bash
+mvn -B package
+```
 
 ## Contributing
 

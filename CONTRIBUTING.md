@@ -11,7 +11,7 @@ We welcome contributions! This document outlines how to propose changes, run tes
 - Open a pull request against the main branch with a short, descriptive title.
 
 ## Code style and quality
-- Use Java 17 features where appropriate.
+- Use Java 21 features where appropriate.
 - Keep changes small and focused per commit.
 - Add or update tests to cover new behavior.
 - Update the README with any user-facing changes.
