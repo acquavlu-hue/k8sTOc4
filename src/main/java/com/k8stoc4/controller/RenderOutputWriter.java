@@ -1,8 +1,8 @@
 package com.k8stoc4.controller;
 
-import com.k8stoc4.render.C4DslRenderer;
+import com.k8stoc4.render.RenderedArtifacts;
 
 @SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface RenderOutputWriter {
-    void write(C4DslRenderer.Output output);
+    void write(RenderedArtifacts output);
 }

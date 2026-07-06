@@ -42,4 +42,28 @@ class C4DslRendererTest {
         assertEquals(expectedSpec, output.getSpec());
         assertEquals(expectedModel, output.getModel());
     }
+
+    @SneakyThrows
+    @Test
+    void testMarkdownReportRender() {
+        final InputStream fis = classloader.getResourceAsStream("render/input/complex.yaml");
+        final List<HasMetadata> resources = KubernetesClient.getInstance().getClient().load(fis).items();
+        final C4ModelBuilderVisitor visitor = new C4ModelBuilderVisitor.Builder().build();
+
+        for (final HasMetadata r : resources) {
+            VisitorUtils.accept(r, visitor);
+        }
+
+        visitor.addAllRelationships();
+
+        final C4Model model = visitor.getModel();
+        final MarkdownReportRenderer renderer = new MarkdownReportRenderer();
+        final String report = renderer.renderArtifacts(model, Set.of()).get(MarkdownReportRenderer.REPORT_FILE).orElseThrow();
+
+        assertEquals(true, report.contains("## Components"));
+        assertEquals(true, report.contains("## Component Metadata"));
+        assertEquals(true, report.contains("## Relationships"));
+        assertEquals(true, report.contains("## Dependencies"));
+        assertEquals(true, report.contains("| Source | Type | Name | Endpoint | Role | Inferred By | Details |"));
+    }
 }

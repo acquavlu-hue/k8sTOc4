@@ -2,6 +2,8 @@ package com.k8stoc4.controller;
 
 import com.k8stoc4.controller.provider.FileInputProvider;
 import com.k8stoc4.render.C4DslRenderer;
+import com.k8stoc4.render.MarkdownReportRenderer;
+import com.k8stoc4.render.RenderedArtifacts;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
@@ -30,15 +32,16 @@ class K8sToC4ControllerTest {
         final TestWriter writer = new TestWriter();
         pc.execute(writer);
 
-        assertEquals(expectedSpec, writer.output.getSpec());
-        assertEquals(expectedModel, writer.output.getModel());
+        assertEquals(expectedSpec, writer.output.get(C4DslRenderer.SPEC_FILE).orElseThrow());
+        assertEquals(expectedModel, writer.output.get(C4DslRenderer.MODEL_FILE).orElseThrow());
+        assertEquals(true, writer.output.get(MarkdownReportRenderer.REPORT_FILE).isPresent());
     }
 
     private static class TestWriter implements RenderOutputWriter {
-        private C4DslRenderer.Output output = null;
+        private RenderedArtifacts output = null;
 
         @Override
-        public void write(C4DslRenderer.Output output) {
+        public void write(RenderedArtifacts output) {
             this.output = output;
         }
     }

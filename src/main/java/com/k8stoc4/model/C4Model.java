@@ -17,12 +17,15 @@ public  class C4Model {
     private final Set<C4Component> clusterScopedComponents = new LinkedHashSet<>();
     private final Set<String> specifications = new LinkedHashSet<>();
     private final Set<C4Relationship> relationships = new LinkedHashSet<>();
+    private final Set<ExtractedDependency> extractedDependencies = new LinkedHashSet<>();
 
     public C4Model(){ }
 
     public void addRelationship(final C4Relationship r) { relationships.add(r); }
 
     public void addClusterScopedComponent(final C4Component c) { clusterScopedComponents.add(c); }
+
+    public void addExtractedDependency(final ExtractedDependency dependency) { extractedDependencies.add(dependency); }
 
     public Set<C4Component> getComponentsByKind(final String namespace, final String kind){
         return namespaces.get(namespace).getComponents().stream().parallel()

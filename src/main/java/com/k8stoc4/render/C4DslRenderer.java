@@ -16,11 +16,24 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class C4DslRenderer {
+public class C4DslRenderer implements ArtifactRenderer {
+    public static final String MODEL_FILE = "model.c4";
+    public static final String SPEC_FILE = "spec.c4";
+    public static final String VIEW_FILE = "view.c4";
+
     public C4DslRenderer() {}
 
     public Output render(final C4Model model, final Set<String> kindExclusions) {
         return new Output(renderModel(model), renderSpec(model), renderViews(model, kindExclusions));
+    }
+
+    @Override
+    public RenderedArtifacts renderArtifacts(final C4Model model, final Set<String> kindExclusions) {
+        final Output output = render(model, kindExclusions);
+        return new RenderedArtifacts()
+            .add(SPEC_FILE, output.getSpec())
+            .add(MODEL_FILE, output.getModel())
+            .add(VIEW_FILE, output.getView());
     }
 
     // Render principale: workspace
