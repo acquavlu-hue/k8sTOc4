@@ -358,4 +358,6 @@ model {
             technology 'rbac'
         }
     }
+    namespace ExternalDeps {
+    }
 }

@@ -1,5 +1,6 @@
 package com.k8stoc4.visitor;
 
+import com.k8stoc4.common.LikeC4IdNormalizer;
 import com.k8stoc4.model.C4Component;
 import com.k8stoc4.model.C4LabelGroup;
 import com.k8stoc4.model.C4Model;
@@ -30,12 +31,13 @@ import io.fabric8.kubernetes.api.model.storage.StorageClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.function.Function;
+
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.k8stoc4.visitor.VisitorUtils.containerMatchesSelector;
+
 
 @Slf4j
 public final class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
@@ -290,6 +292,7 @@ public final class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
     }
 
     private void addServiceToServiceRelationships() {
+        C4Namespace external = this.getOrCreateSystem("ExternalDeps");
         model.getNamespaces().values().forEach(namespace -> {
             final Map<String, C4Component> servicesByFqdn = new HashMap<>();
                 model.getComponentsByKind(namespace.getName(), "service")
@@ -314,21 +317,36 @@ public final class C4ModelBuilderVisitor implements KubernetesResourceVisitor {
                         container.getEnv().stream()
                             .map(EnvVar::getValue)
                             .filter(this::isServiceRef)
-                            .forEach(value ->
-                                servicesByFqdn.forEach((fqdn, service) -> {
-                                    if (value.contains(fqdn)) {
-                                        namespace.addRelationship(
-                                                new C4Relationship(
-                                                    component.getNamespace() + "." + component.getId(),
-                                                    service.getNamespace() + "." + service.getId(),
-                                                    Constants.ROUTES_TO_RELATIONSHIP,
-                                                    Constants.TECHNOLOGY_TCP_HTTP,
-                                                    Constants.SERVICE2SERVICE_TAG
-                                                )
-                                        );
-                                    }
-                                })
-                            );
+                            .forEach(envVarValue ->{
+                             Optional<Map.Entry<String,C4Component>> targetService=
+                                     servicesByFqdn.entrySet().stream().filter(fqdn
+                                        -> envVarValue.contains(fqdn.getKey())).findFirst();
+                             //IF target service is found on model definition we will use it for relationship
+                             if (targetService.isPresent()){
+                                 namespace.addRelationship(
+                                        new C4Relationship(
+                                            component.getNamespace() + "." + component.getId(),
+                                                targetService.get().getValue().getNamespace() + "." + targetService.get().getValue().getId(),
+                                            Constants.ROUTES_TO_RELATIONSHIP,
+                                            Constants.TECHNOLOGY_TCP_HTTP,
+                                            Constants.SERVICE2SERVICE_TAG
+                                        ));
+                             //Else add Missing Services
+                             }else if(!envVarValue.contains(".svc.cluster.local")){
+                                 C4Component missingComponent=
+                                         C4Component.missing(external.getName(), LikeC4IdNormalizer.normalize(envVarValue),"service");
+                                 external.getComponents().add(missingComponent);
+                                 namespace.addRelationship(
+                                     new C4Relationship(
+                                             component.getNamespace() + "." + component.getId(),
+                                             missingComponent.getNamespace() + "." + missingComponent.getId(),
+                                             Constants.ROUTES_TO_RELATIONSHIP,
+                                             Constants.TECHNOLOGY_TCP_HTTP,
+                                             Constants.MISSING_TYPE
+                                     ));
+                             }
+                            });
+
                     });
             });
         });

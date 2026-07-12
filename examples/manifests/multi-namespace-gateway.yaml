@@ -1,0 +1,193 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: edge
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: public-gateway
+  namespace: edge
+  labels:
+    app: public-gateway
+    app.kubernetes.io/name: public-gateway
+    app.kubernetes.io/part-of: edge-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: public-gateway
+  template:
+    metadata:
+      labels:
+        app: public-gateway
+        app.kubernetes.io/name: public-gateway
+        app.kubernetes.io/part-of: edge-platform
+    spec:
+      containers:
+        - name: gateway
+          image: ghcr.io/example/public-gateway:latest
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: public-gateway
+  namespace: edge
+spec:
+  selector:
+    app: public-gateway
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: public-gateway
+  namespace: edge
+spec:
+  rules:
+    - host: platform.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: public-gateway
+                port:
+                  number: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-api
+  namespace: platform
+  labels:
+    app: identity-api
+    app.kubernetes.io/name: identity-api
+    app.kubernetes.io/part-of: internal-services
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: identity-api
+  template:
+    metadata:
+      labels:
+        app: identity-api
+        app.kubernetes.io/name: identity-api
+        app.kubernetes.io/part-of: internal-services
+    spec:
+      containers:
+        - name: identity-api
+          image: ghcr.io/example/identity-api:latest
+          env:
+            - name: AUTH_PROVIDER_URL
+              value: "https://auth.example.invalid"
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-api
+  namespace: platform
+spec:
+  selector:
+    app: identity-api
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing-api
+  namespace: platform
+  labels:
+    app: billing-api
+    app.kubernetes.io/name: billing-api
+    app.kubernetes.io/part-of: internal-services
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: billing-api
+  template:
+    metadata:
+      labels:
+        app: billing-api
+        app.kubernetes.io/name: billing-api
+        app.kubernetes.io/part-of: internal-services
+    spec:
+      containers:
+        - name: billing-api
+          image: ghcr.io/example/billing-api:latest
+          env:
+            - name: PAYMENTS_PROVIDER_URL
+              value: "https://payments.example.invalid"
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: billing-api
+  namespace: platform
+spec:
+  selector:
+    app: billing-api
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docs-portal
+  namespace: platform
+  labels:
+    app: docs-portal
+    app.kubernetes.io/name: docs-portal
+    app.kubernetes.io/part-of: internal-services
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docs-portal
+  template:
+    metadata:
+      labels:
+        app: docs-portal
+        app.kubernetes.io/name: docs-portal
+        app.kubernetes.io/part-of: internal-services
+    spec:
+      containers:
+        - name: docs-portal
+          image: ghcr.io/example/docs-portal:latest
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docs-portal
+  namespace: platform
+spec:
+  selector:
+    app: docs-portal
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000

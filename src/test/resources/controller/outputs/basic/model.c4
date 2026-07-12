@@ -61,4 +61,6 @@ model {
             technology 'TCP/HTTP'
         }
     }
+    namespace ExternalDeps {
+    }
 }
